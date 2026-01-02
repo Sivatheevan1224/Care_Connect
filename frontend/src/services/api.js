@@ -65,8 +65,58 @@ export const adminLogin = async (credentials) => {
   }
 };
 
+// Patient registration
+export const patientRegister = async (userData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/patient/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Registration failed");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error during registration:", error);
+    throw error;
+  }
+};
+
+// Patient login
+export const patientLogin = async (credentials) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/patient/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Login failed");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error during login:", error);
+    throw error;
+  }
+};
+
 export default {
   fetchDoctors,
   fetchDoctorById,
   adminLogin,
+  patientRegister,
+  patientLogin,
 };

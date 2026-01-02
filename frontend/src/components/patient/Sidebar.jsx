@@ -85,7 +85,7 @@ const Sidebar = () => {
   return (
     <aside className="w-64 bg-gradient-to-b from-teal-900 to-blue-900 text-white h-screen fixed left-0 top-0 overflow-y-auto flex flex-col">
       <div className="p-6 flex-1 flex flex-col">
-        <div className="flex items-center gap-3 mb-8">
+        <Link to="/" className="flex items-center gap-3 mb-8 hover:opacity-80 transition-opacity">
           <div className="bg-gradient-to-br from-teal-400 to-blue-500 p-2 rounded-xl">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -106,7 +106,7 @@ const Sidebar = () => {
             <h2 className="text-xl font-bold">CareConnect</h2>
             <p className="text-xs text-teal-300">Patient Portal</p>
           </div>
-        </div>
+        </Link>
 
         <nav className="space-y-2 flex-1">
           {menuItems.map((item) => (

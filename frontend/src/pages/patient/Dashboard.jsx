@@ -299,15 +299,9 @@ const PatientDashboard = () => {
                 <input
                   type="email"
                   name="email"
-                  value={isEditing ? formData.email : patient?.email || ""}
-                  onChange={handleInputChange}
-                  readOnly={!isEditing}
-                  required
-                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none transition ${
-                    isEditing
-                      ? "border-teal-500 bg-white"
-                      : "border-gray-200 bg-gray-50 text-gray-600"
-                  }`}
+                  value={patient?.email || ""}
+                  readOnly
+                  className="w-full px-4 py-2 border border-gray-200 bg-gray-50 text-gray-600 rounded-lg focus:outline-none cursor-not-allowed"
                 />
               </div>
 

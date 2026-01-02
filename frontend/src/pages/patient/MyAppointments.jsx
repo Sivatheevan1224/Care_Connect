@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { getAppointments, cancelAppointment } from "../../services/api";
+import Modal from "../../components/Modal";
 
 const AppointmentsList = () => {
   const { token } = useAuth();
@@ -9,6 +10,9 @@ const AppointmentsList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [cancellingId, setCancellingId] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, appointmentId: null });
+  const [successModal, setSuccessModal] = useState({ isOpen: false, message: "" });
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: "" });
 
   useEffect(() => {
     fetchAppointments();
@@ -29,18 +33,21 @@ const AppointmentsList = () => {
   };
 
   const handleCancelAppointment = async (appointmentId) => {
-    if (!window.confirm("Are you sure you want to cancel this appointment?")) {
-      return;
-    }
+    setConfirmModal({ isOpen: true, appointmentId });
+  };
+
+  const confirmCancelAppointment = async () => {
+    const appointmentId = confirmModal.appointmentId;
+    setConfirmModal({ isOpen: false, appointmentId: null });
 
     try {
       setCancellingId(appointmentId);
       await cancelAppointment(appointmentId, token);
       // Refresh appointments list
       await fetchAppointments();
-      alert("Appointment cancelled successfully");
+      setSuccessModal({ isOpen: true, message: "Appointment cancelled successfully" });
     } catch (err) {
-      alert(err.message || "Failed to cancel appointment");
+      setErrorModal({ isOpen: true, message: err.message || "Failed to cancel appointment" });
     } finally {
       setCancellingId(null);
     }
@@ -241,6 +248,65 @@ const AppointmentsList = () => {
           </div>
         </div>
       )}
+
+      {/* Cancel Confirmation Modal */}
+      <Modal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, appointmentId: null })}
+        title="Cancel Appointment"
+        actions={
+          <>
+            <button
+              onClick={() => setConfirmModal({ isOpen: false, appointmentId: null })}
+              className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmCancelAppointment}
+              className="px-6 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
+            >
+              OK
+            </button>
+          </>
+        }
+      >
+        <p className="text-gray-600">Are you sure you want to cancel this appointment?</p>
+      </Modal>
+
+      {/* Success Modal */}
+      <Modal
+        isOpen={successModal.isOpen}
+        onClose={() => setSuccessModal({ isOpen: false, message: "" })}
+        title="Success"
+        actions={
+          <button
+            onClick={() => setSuccessModal({ isOpen: false, message: "" })}
+            className="px-6 py-2 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 transition"
+          >
+            OK
+          </button>
+        }
+      >
+        <p className="text-gray-600">{successModal.message}</p>
+      </Modal>
+
+      {/* Error Modal */}
+      <Modal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal({ isOpen: false, message: "" })}
+        title="Error"
+        actions={
+          <button
+            onClick={() => setErrorModal({ isOpen: false, message: "" })}
+            className="px-6 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
+          >
+            OK
+          </button>
+        }
+      >
+        <p className="text-gray-600">{errorModal.message}</p>
+      </Modal>
     </div>
   );
 };

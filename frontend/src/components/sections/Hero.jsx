@@ -5,8 +5,6 @@ const Hero = () => {
   const closeMenuRef = useRef(null);
   const navLinksRef = useRef(null);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
-  const [authState, setAuthState] = useState("login");
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -36,14 +34,12 @@ const Hero = () => {
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
-    // Handle login/register logic here
-    console.log({ name, email, password, authState });
+    // Handle staff login logic here
+    console.log({ email, password });
     setShowLoginPopup(false);
     // Reset form
-    setName("");
     setEmail("");
     setPassword("");
-    setAuthState("login");
   };
 
   return (
@@ -155,28 +151,14 @@ const Hero = () => {
             
             <div className="text-center mb-6">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-2">
-                {authState === "login" ? "Welcome Back" : "Create Account"}
+                Staff Login
               </h2>
               <p className="text-gray-600">
-                {authState === "login" ? "Sign in to your account" : "Join CareConnect today"}
+                Sign in to access the system
               </p>
             </div>
 
             <form onSubmit={handleLoginSubmit} className="space-y-4">
-              {authState === "register" && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition"
-                    placeholder="Enter your name"
-                  />
-                </div>
-              )}
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                 <input
@@ -202,16 +184,13 @@ const Hero = () => {
               </div>
 
               <button type="submit" className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold py-3 rounded-lg shadow-lg transition active:scale-95">
-                {authState === "login" ? "Sign In" : "Sign Up"}
+                Sign In
               </button>
             </form>
 
             <div className="text-center mt-6">
-              <p className="text-gray-600">
-                {authState === "login" ? "Don't have an account? " : "Already have an account? "}
-                <button onClick={() => setAuthState(authState === "login" ? "register" : "login")} className="text-teal-600 font-semibold hover:text-teal-700 transition">
-                  {authState === "login" ? "Sign Up" : "Sign In"}
-                </button>
+              <p className="text-gray-600 text-sm">
+                For staff access only. Contact admin to get your credentials.
               </p>
             </div>
           </div>

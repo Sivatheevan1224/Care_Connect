@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import connectDB from "./config/dbConfig.js";
 import cloudinaryConfig from "./config/cloudinary.js";
+import adminRouter from "./routes/admin.route.js";
 
 //app config
 const app = express();
@@ -12,10 +13,12 @@ cloudinaryConfig();
 
 //middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors());
 
 //api endpoints
+app.use("/api/admin", adminRouter);
 
 app.get("/", (req, res) => {
   res.send("app is working ");

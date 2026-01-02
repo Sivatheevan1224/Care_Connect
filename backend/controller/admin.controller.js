@@ -1,7 +1,12 @@
 import Doctor from "../model/doctor.model.js";
 import bcrypt from "bcrypt";
 import uploadToCloudinary from "../utils/cloudinaryUpload.js";
+import jwt from "jsonwebtoken";
 
+// Simple regex for email validation
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+//adding doctor by admin
 const addDoctor = async (req, res) => {
   try {
     const {
@@ -14,6 +19,24 @@ const addDoctor = async (req, res) => {
       experience,
     } = req.body;
     const imageFile = req.file || req.files?.[0];
+
+    if (!name || !email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Name, email, and password are required" });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    if (password.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters long" });
+    }
+
     const existingDoctor = await Doctor.findOne({ email });
     if (existingDoctor) {
       return res
@@ -21,10 +44,14 @@ const addDoctor = async (req, res) => {
         .json({ message: "Doctor already exists with this email" });
     }
 
-    // Upload image to Cloudinary
-    const imageUrl = await uploadToCloudinary(imageFile, "doctors");
+    let imageUrl = null;
+    if (imageFile) {
+      imageUrl = await uploadToCloudinary(imageFile, "doctors");
+    }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     const doctor = new Doctor({
       name,
       email,
@@ -35,6 +62,7 @@ const addDoctor = async (req, res) => {
       experience,
       image: imageUrl,
     });
+
     await doctor.save();
 
     return res.status(201).json({
@@ -59,4 +87,64 @@ const addDoctor = async (req, res) => {
   }
 };
 
-export { addDoctor };
+//admin login
+const adminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
+    }
+
+    if (
+      email !== process.env.ADMIN_EMAIL ||
+      password !== process.env.ADMIN_PASSWORD
+    ) {
+      return res.status(401).json({ message: "Invalid admin credentials" });
+    }
+
+    const token = jwt.sign({ role: "admin", email }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    return res.status(200).json({
+      message: "Admin login successful",
+      token,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error in admin login controller",
+      error: error.message,
+    });
+  }
+};
+
+//view the list of doctors available
+const viewDoctorList = async (req, res) => {
+  try {
+    const { specialization, hospital } = req.query;
+    const filter = {};
+    if (specialization) filter.specialization = specialization;
+    if (hospital) filter.hospital = hospital;
+
+    const doctors = await Doctor.find(filter).select("-password"); // exclude password
+
+    if (!doctors || doctors.length === 0)
+      return res.status(404).json({ message: "No doctors found" });
+
+    return res.status(200).json({
+      message: "Doctors retrieved successfully",
+      count: doctors.length,
+      doctors,
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Error in fetching doctor list", error: error.message });
+  }
+};
+export { addDoctor, adminLogin, viewDoctorList };

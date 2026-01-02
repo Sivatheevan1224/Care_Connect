@@ -6,15 +6,10 @@ const Sidebar = () => {
 
   const menuItems = [
     {
-      name: 'Dashboard',
+      name: 'Profile',
       path: '/patient/dashboard',
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="7" height="7" />
-          <rect x="14" y="3" width="7" height="7" />
-          <rect x="14" y="14" width="7" height="7" />
-          <rect x="3" y="14" width="7" height="7" />
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
       )
     },
 
@@ -79,18 +74,6 @@ const Sidebar = () => {
         </nav>
 
         <div className="mt-auto pt-6 border-t border-white/20">
-          <Link
-            to="/patient/dashboard"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-all duration-300 w-full mb-2"
-          >
-            <div className="w-8 h-8 rounded-full bg-teal-200 flex items-center justify-center text-teal-800 font-bold">
-              JD
-            </div>
-            <div>
-              <p className="text-sm font-semibold">John Doe</p>
-              <p className="text-xs text-teal-300">View Profile</p>
-            </div>
-          </Link>
           <button
             className="flex items-center gap-3 px-4 py-3 rounded-lg bg-red-600 hover:bg-red-700 transition-all duration-300 w-full"
           >

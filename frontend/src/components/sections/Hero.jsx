@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 const Hero = () => {
   const openMenuRef = useRef(null);
@@ -163,14 +164,9 @@ const Hero = () => {
             </button>
 
             <div className="text-center mb-6">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <div className="bg-teal-100 p-2 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-teal-600"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                </div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
-                  {isSignUp ? 'Patient Sign Up' : 'Patient Login'}
-                </h2>
-              </div>
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-2">
+                {isSignUp ? 'Patient Sign Up' : 'Patient Login'}
+              </h2>
               <p className="text-gray-600">
                 {isSignUp ? 'Create an account to book appointments' : 'Sign in to access your portal'}
               </p>

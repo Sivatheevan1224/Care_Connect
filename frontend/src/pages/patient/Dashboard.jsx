@@ -1,147 +1,206 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 const PatientDashboard = () => {
+  // Mock data based on provided schema
+  const [patient, setPatient] = useState({
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    phone: '+1 234 567 8900',
+    age: 32,
+    gender: 'Male',
+    address: '123 Health St, Wellness City',
+    medicalHistory: ['Hypertension', 'Seasonal Allergies'],
+    doctor: 'Dr. Sarah Johnson'
+  })
+
+  const [isEditing, setIsEditing] = useState(false)
+  const [formData, setFormData] = useState({ ...patient })
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleUpdate = (e) => {
+    e.preventDefault()
+    setPatient(formData)
+    setIsEditing(false)
+  }
+
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">My Dashboard</h1>
-        <p className="text-gray-600">Welcome to your CareConnect Patient Portal</p>
+      <div className="mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">My Profile</h1>
+          <p className="text-gray-600">Manage your personal information and medical history</p>
+        </div>
+        <button
+          onClick={() => setIsEditing(!isEditing)}
+          className={`px-6 py-2 rounded-lg font-semibold transition ${isEditing
+              ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              : 'bg-teal-600 text-white hover:bg-teal-700'
+            }`}
+        >
+          {isEditing ? 'Cancel Edit' : 'Edit Profile'}
+        </button>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-teal-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm mb-1">Upcoming Visits</p>
-              <h3 className="text-3xl font-bold text-gray-800">2</h3>
-            </div>
-            <div className="bg-teal-100 p-3 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0d9488" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-              </svg>
-            </div>
-          </div>
-        </div>
+      <div className="grid lg:grid-cols-3 gap-8">
 
-        <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm mb-1">Find Doctors</p>
-              <h3 className="text-3xl font-bold text-gray-800">12+</h3>
+        {/* Profile Card */}
+        <div className="lg:col-span-1">
+          <div className="bg-white rounded-xl shadow-md overflow-hidden text-center p-8">
+            <div className="w-32 h-32 bg-teal-100 rounded-full mx-auto flex items-center justify-center text-4xl font-bold text-teal-600 mb-4">
+              {patient.name.split(' ').map(n => n[0]).join('')}
             </div>
-            <div className="bg-blue-100 p-3 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
-            </div>
-          </div>
-        </div>
+            <h2 className="text-2xl font-bold text-gray-800">{patient.name}</h2>
+            <p className="text-gray-500 mb-4">{patient.email}</p>
 
-        <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-cyan-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm mb-1">Prescriptions</p>
-              <h3 className="text-3xl font-bold text-gray-800">5</h3>
+            <div className="flex justify-center gap-2 mb-6">
+              <span className="px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-semibold">
+                {patient.gender}
+              </span>
+              <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold">
+                {patient.age} Years Old
+              </span>
             </div>
-            <div className="bg-cyan-100 p-3 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0891b2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
-              </svg>
-            </div>
-          </div>
-        </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm mb-1">Past Visits</p>
-              <h3 className="text-3xl font-bold text-gray-800">8</h3>
-            </div>
-            <div className="bg-green-100 p-3 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-md">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Messages & Notifications</h2>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <div className="border-t pt-6 text-left">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Assigned Doctor</p>
+              <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg">
+                <div className="p-2 bg-white rounded-full shadow-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-teal-600"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                </div>
+                <span className="font-medium text-gray-700">{patient.doctor}</span>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Details Form/View */}
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-xl shadow-md p-8">
+            <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-teal-600"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+              Personal Details
+            </h3>
+
+            <form onSubmit={handleUpdate} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={isEditing ? formData.name : patient.name}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none transition ${isEditing ? 'border-teal-500 bg-white' : 'border-gray-200 bg-gray-50 text-gray-600'}`}
+                />
+              </div>
+
               <div>
-                <p className="font-semibold text-gray-800">Dr. Sarah sent a message</p>
-                <p className="text-xs text-gray-500">Your test results are ready...</p>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={isEditing ? formData.email : patient.email}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none transition ${isEditing ? 'border-teal-500 bg-white' : 'border-gray-200 bg-gray-50 text-gray-600'}`}
+                />
               </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg">
-              <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-              </div>
+
               <div>
-                <p className="font-semibold text-gray-800">Appointment Reminder</p>
-                <p className="text-xs text-gray-500">Tomorrow at 10:00 AM</p>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={isEditing ? formData.phone : patient.phone}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none transition ${isEditing ? 'border-teal-500 bg-white' : 'border-gray-200 bg-gray-50 text-gray-600'}`}
+                />
               </div>
-            </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Age</label>
+                <input
+                  type="number"
+                  name="age"
+                  value={isEditing ? formData.age : patient.age}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none transition ${isEditing ? 'border-teal-500 bg-white' : 'border-gray-200 bg-gray-50 text-gray-600'}`}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Gender</label>
+                {isEditing ? (
+                  <select
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-teal-500 rounded-lg focus:outline-none bg-white"
+                  >
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    value={patient.gender}
+                    readOnly
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600"
+                  />
+                )}
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Address</label>
+                <textarea
+                  name="address"
+                  value={isEditing ? formData.address : patient.address}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                  rows="2"
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none transition ${isEditing ? 'border-teal-500 bg-white' : 'border-gray-200 bg-gray-50 text-gray-600'}`}
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Medical History</label>
+                <div className={`w-full px-4 py-3 border rounded-lg ${isEditing ? 'border-teal-500 bg-white' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className="flex flex-wrap gap-2">
+                    {patient.medicalHistory.map((item, index) => (
+                      <span key={index} className="px-3 py-1 bg-red-100 text-red-600 rounded-full text-xs font-semibold">
+                        {item}
+                      </span>
+                    ))}
+                    {patient.medicalHistory.length === 0 && <span className="text-gray-400 italic">No history recorded</span>}
+                  </div>
+                </div>
+              </div>
+
+              {isEditing && (
+                <div className="md:col-span-2 flex justify-end gap-4 mt-4">
+                  <button
+                    type="submit"
+                    className="px-8 py-3 bg-gradient-to-r from-teal-500 to-blue-600 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              )}
+
+            </form>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-md">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <button className="flex flex-col items-center gap-2 p-4 bg-gradient-to-br from-teal-50 to-blue-50 rounded-lg hover:shadow-md transition">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0d9488" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-              <span className="text-sm font-semibold text-gray-700">Book Appointment</span>
-            </button>
-            <button className="flex flex-col items-center gap-2 p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg hover:shadow-md transition">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-              </svg>
-              <span className="text-sm font-semibold text-gray-700">Find Doctors</span>
-            </button>
-            <button className="flex flex-col items-center gap-2 p-4 bg-gradient-to-br from-cyan-50 to-teal-50 rounded-lg hover:shadow-md transition">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0891b2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
-              </svg>
-              <span className="text-sm font-semibold text-gray-700">Medical Records</span>
-            </button>
-            <button className="flex flex-col items-center gap-2 p-4 bg-gradient-to-br from-teal-50 to-cyan-50 rounded-lg hover:shadow-md transition">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0d9488" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="8" y1="6" x2="21" y2="6" />
-                <line x1="8" y1="12" x2="21" y2="12" />
-                <line x1="8" y1="18" x2="21" y2="18" />
-                <line x1="3" y1="6" x2="3.01" y2="6" />
-                <line x1="3" y1="12" x2="3.01" y2="12" />
-                <line x1="3" y1="18" x2="3.01" y2="18" />
-              </svg>
-              <span className="text-sm font-semibold text-gray-700">Health Awareness</span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   )

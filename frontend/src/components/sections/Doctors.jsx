@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 
 const Doctors = ({ isFullPage = false }) => {
   const [selectedSpecialization, setSelectedSpecialization] = useState('All')
+  const [selectedAvailability, setSelectedAvailability] = useState('All')
 
   const specializations = [
     { name: 'All', icon: '👨‍⚕️' },
@@ -11,6 +12,16 @@ const Doctors = ({ isFullPage = false }) => {
     { name: 'Orthopedics', icon: '🦴' },
     { name: 'Dermatology', icon: '💆' },
     { name: 'Neurology', icon: '🧠' },
+  ]
+
+  const availabilityOptions = [
+    { name: 'All', icon: '📅' },
+    { name: 'Monday', icon: '1️⃣' },
+    { name: 'Tuesday', icon: '2️⃣' },
+    { name: 'Wednesday', icon: '3️⃣' },
+    { name: 'Thursday', icon: '4️⃣' },
+    { name: 'Friday', icon: '5️⃣' },
+    { name: 'Saturday', icon: '6️⃣' },
   ]
 
   const doctors = [
@@ -80,9 +91,11 @@ const Doctors = ({ isFullPage = false }) => {
     },
   ]
 
-  const filteredDoctors = selectedSpecialization === 'All' 
-    ? doctors 
-    : doctors.filter(doctor => doctor.specialization === selectedSpecialization)
+  const filteredDoctors = doctors.filter(doctor => {
+    const matchesSpecialization = selectedSpecialization === 'All' || doctor.specialization === selectedSpecialization
+    const matchesAvailability = selectedAvailability === 'All' || doctor.available.includes(selectedAvailability.substring(0, 3))
+    return matchesSpecialization && matchesAvailability
+  })
 
   // Show limited doctors on home page, all on full page
   const displayedDoctors = isFullPage ? filteredDoctors : filteredDoctors.slice(0, 4)
@@ -97,23 +110,52 @@ const Doctors = ({ isFullPage = false }) => {
           </p>
         </div>
 
-        {/* Specialization Filter */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {specializations.map((spec) => (
-            <button
-              key={spec.name}
-              onClick={() => setSelectedSpecialization(spec.name)}
-              className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all duration-300 ${
-                selectedSpecialization === spec.name
-                  ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg scale-105'
-                  : 'bg-white text-gray-700 hover:bg-teal-50 hover:text-teal-600 shadow-md'
-              }`}
-            >
-              <span className="text-xl">{spec.icon}</span>
-              <span>{spec.name}</span>
-            </button>
-          ))}
-        </div>
+        {/* Filters - Only show on full doctors page */}
+        {isFullPage && (
+          <>
+            {/* Specialization Filter */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Filter by Specialization</h3>
+              <div className="flex flex-wrap gap-3">
+                {specializations.map((spec) => (
+                  <button
+                    key={spec.name}
+                    onClick={() => setSelectedSpecialization(spec.name)}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold transition-all duration-300 text-sm ${
+                      selectedSpecialization === spec.name
+                        ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg scale-105'
+                        : 'bg-white text-gray-700 hover:bg-teal-50 hover:text-teal-600 shadow-md'
+                    }`}
+                  >
+                    <span className="text-lg">{spec.icon}</span>
+                    <span>{spec.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Availability Filter */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Filter by Availability</h3>
+              <div className="flex flex-wrap gap-3">
+                {availabilityOptions.map((option) => (
+                  <button
+                    key={option.name}
+                    onClick={() => setSelectedAvailability(option.name)}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold transition-all duration-300 text-sm ${
+                      selectedAvailability === option.name
+                        ? 'bg-gradient-to-r from-cyan-500 to-teal-600 text-white shadow-lg scale-105'
+                        : 'bg-white text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 shadow-md'
+                    }`}
+                  >
+                    <span className="text-lg">{option.icon}</span>
+                    <span>{option.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Doctors Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">

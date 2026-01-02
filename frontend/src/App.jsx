@@ -2,12 +2,11 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './App.css'
 import Home from './pages/Home'
 import DoctorsPage from './pages/DoctorsPage'
-import StaffLayout from './layouts/StaffLayout'
-import Dashboard from './pages/staff/Dashboard'
-import AddAppointment from './pages/staff/AddAppointment'
-import DoctorAvailability from './pages/staff/DoctorAvailability'
-import AssignDoctor from './pages/staff/AssignDoctor'
-import AppointmentsList from './pages/staff/AppointmentsList'
+import PatientLayout from './layouts/PatientLayout'
+import Dashboard from './pages/patient/Dashboard'
+import BookAppointment from './pages/patient/BookAppointment'
+import FindDoctors from './pages/patient/FindDoctors'
+import MyAppointments from './pages/patient/MyAppointments'
 
 function App() {
   return (
@@ -15,14 +14,13 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/doctors" element={<DoctorsPage />} />
-        
-        {/* Staff Routes */}
-        <Route path="/staff" element={<StaffLayout />}>
+
+        {/* Patient Routes */}
+        <Route path="/patient" element={<PatientLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="appointments/add" element={<AddAppointment />} />
-          <Route path="doctors/availability" element={<DoctorAvailability />} />
-          <Route path="appointments/assign" element={<AssignDoctor />} />
-          <Route path="appointments" element={<AppointmentsList />} />
+          <Route path="appointments/book" element={<BookAppointment />} />
+          <Route path="doctors/check" element={<FindDoctors />} />
+          <Route path="appointments" element={<MyAppointments />} />
         </Route>
       </Routes>
     </Router>

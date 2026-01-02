@@ -3,7 +3,8 @@ import './App.css'
 import AdminLayout from './layouts/AdminLayout'
 import Dashboard from './pages/Dashboard'
 import ManageDoctors from './pages/ManageDoctors'
-import ManageStaff from './pages/ManageStaff'
+import ManagePatients from './pages/ManagePatients'
+import ManageAppointments from './pages/ManageAppointments'
 
 function App() {
   return (
@@ -13,7 +14,8 @@ function App() {
         <Route element={<AdminLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/doctors" element={<ManageDoctors />} />
-          <Route path="/staff" element={<ManageStaff />} />
+          <Route path="/patients" element={<ManagePatients />} />
+          <Route path="/appointments" element={<ManageAppointments />} />
         </Route>
       </Routes>
     </Router>

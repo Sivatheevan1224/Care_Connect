@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchDoctorById } from "../services/api";
+import { fetchDoctorById, bookAppointment } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 const DoctorDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user, token } = useAuth();
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
+  const [reason, setReason] = useState("");
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingError, setBookingError] = useState("");
+  const [bookingSuccess, setBookingSuccess] = useState(false);
 
   useEffect(() => {
     const loadDoctor = async () => {
@@ -29,18 +35,46 @@ const DoctorDetail = () => {
     loadDoctor();
   }, [id]);
 
-  const handleBookAppointment = () => {
-    if (!selectedDate || !selectedTime) {
-      alert("Please select both date and time");
+  const handleBookAppointment = async () => {
+    if (!user || !token) {
+      alert("Please login to book an appointment");
+      navigate("/");
       return;
     }
-    // Navigate to appointment booking page or handle booking
-    console.log("Booking appointment:", {
-      doctorId: id,
-      date: selectedDate,
-      time: selectedTime,
-    });
-    alert("Appointment booking functionality will be implemented soon!");
+
+    if (!selectedDate || !selectedTime) {
+      setBookingError("Please select both date and time");
+      return;
+    }
+
+    setBookingLoading(true);
+    setBookingError("");
+    setBookingSuccess(false);
+
+    try {
+      const appointmentData = {
+        patientId: user.id,
+        doctorId: id,
+        date: selectedDate,
+        timeSlot: selectedTime,
+        reason: reason || "General consultation",
+      };
+
+      await bookAppointment(appointmentData, token);
+      setBookingSuccess(true);
+      setSelectedDate("");
+      setSelectedTime("");
+      setReason("");
+
+      // Show success message for 3 seconds then redirect
+      setTimeout(() => {
+        navigate("/patient/dashboard");
+      }, 2000);
+    } catch (err) {
+      setBookingError(err.message || "Failed to book appointment");
+    } finally {
+      setBookingLoading(false);
+    }
   };
 
   if (loading) {
@@ -259,7 +293,21 @@ const DoctorDetail = () => {
                   Book an Appointment
                 </h2>
 
-                <div className="grid md:grid-cols-2 gap-4 mb-6">
+                {/* Success Message */}
+                {bookingSuccess && (
+                  <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+                    Appointment booked successfully! Redirecting to dashboard...
+                  </div>
+                )}
+
+                {/* Error Message */}
+                {bookingError && (
+                  <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                    {bookingError}
+                  </div>
+                )}
+
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
                   {/* Date Selection */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -295,11 +343,30 @@ const DoctorDetail = () => {
                   </div>
                 </div>
 
+                {/* Reason for Visit */}
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Reason for Visit (Optional)
+                  </label>
+                  <textarea
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    placeholder="Briefly describe your symptoms or reason for consultation"
+                    rows="3"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
+
                 <button
                   onClick={handleBookAppointment}
-                  className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
+                  disabled={bookingLoading || bookingSuccess}
+                  className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Book Appointment
+                  {bookingLoading
+                    ? "Booking..."
+                    : bookingSuccess
+                    ? "Booked Successfully!"
+                    : "Book Appointment"}
                 </button>
               </div>
             </div>

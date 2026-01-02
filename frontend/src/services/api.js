@@ -113,10 +113,119 @@ export const patientLogin = async (credentials) => {
   }
 };
 
+// Book appointment
+export const bookAppointment = async (appointmentData, token) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/patient/appointment`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(appointmentData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to book appointment");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error booking appointment:", error);
+    throw error;
+  }
+};
+
+// Get patient appointments
+export const getAppointments = async (token) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/patient/appointments`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to fetch appointments");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    throw error;
+  }
+};
+
+// Cancel appointment
+export const cancelAppointment = async (appointmentId, token) => {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/patient/appointment/${appointmentId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to cancel appointment");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error cancelling appointment:", error);
+    throw error;
+  }
+};
+
+// Get list of doctors (public endpoint)
+export const getDoctorList = async (filters = {}) => {
+  try {
+    const queryParams = new URLSearchParams();
+    if (filters.specialization && filters.specialization !== 'All') {
+      queryParams.append('specialization', filters.specialization);
+    }
+    if (filters.hospital) {
+      queryParams.append('hospital', filters.hospital);
+    }
+
+    const url = `${API_BASE_URL}/doctor/list${
+      queryParams.toString() ? `?${queryParams.toString()}` : ''
+    }`;
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch doctors');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching doctor list:', error);
+    throw error;
+  }
+};
+
 export default {
   fetchDoctors,
   fetchDoctorById,
   adminLogin,
   patientRegister,
   patientLogin,
+  bookAppointment,
+  getAppointments,
+  cancelAppointment,
+  getDoctorList,
 };

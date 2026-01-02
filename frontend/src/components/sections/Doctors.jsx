@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-const Doctors = () => {
+const Doctors = ({ isFullPage = false }) => {
   const [selectedSpecialization, setSelectedSpecialization] = useState('All')
 
   const specializations = [
@@ -84,6 +84,9 @@ const Doctors = () => {
     ? doctors 
     : doctors.filter(doctor => doctor.specialization === selectedSpecialization)
 
+  // Show limited doctors on home page, all on full page
+  const displayedDoctors = isFullPage ? filteredDoctors : filteredDoctors.slice(0, 6)
+
   return (
     <section id="doctors" className="w-full py-20 px-8 bg-gradient-to-br from-teal-50 via-blue-50 to-cyan-50">
       <div className="w-full max-w-7xl mx-auto">
@@ -114,7 +117,7 @@ const Doctors = () => {
 
         {/* Doctors Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredDoctors.map((doctor) => (
+          {displayedDoctors.map((doctor) => (
             <div
               key={doctor.id}
               className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group"
@@ -163,6 +166,18 @@ const Doctors = () => {
         {filteredDoctors.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">No doctors found for this specialization.</p>
+          </div>
+        )}
+
+        {/* View More Button - Only show on home page if there are more doctors */}
+        {!isFullPage && filteredDoctors.length > 6 && (
+          <div className="flex justify-center mt-12">
+            <a
+              href="/doctors"
+              className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-bold py-3 px-12 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl text-lg"
+            >
+              View More Doctors
+            </a>
           </div>
         )}
       </div>

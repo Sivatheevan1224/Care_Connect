@@ -6,6 +6,7 @@ import connectDB from "./config/dbConfig.js";
 import cloudinaryConfig from "./config/cloudinary.js";
 import adminRouter from "./routes/admin.route.js";
 import doctorRoute from "./routes/doctor.route.js";
+import patientRoute from "./routes/patient.route.js";
 
 //app config
 const app = express();
@@ -21,6 +22,7 @@ app.use(cors());
 //api endpoints
 app.use("/api/admin", adminRouter);
 app.use("/api/doctor", doctorRoute);
+app.use("/api/patient", patientRoute);
 
 app.get("/", (req, res) => {
   res.send("app is working ");

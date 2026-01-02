@@ -4,7 +4,8 @@ import Services from '../components/sections/Services'
 import Features from '../components/sections/Features'
 import Doctors from '../components/sections/Doctors'
 import HealthResources from '../components/sections/HealthResources'
-import AboutContact from '../components/sections/AboutContact'
+import About from '../components/sections/About'
+import Contact from '../components/sections/Contact'
 import Footer from '../components/sections/Footer'
 
 const Home = () => {
@@ -15,7 +16,8 @@ const Home = () => {
         <Features />
         <Doctors />
         <HealthResources />
-        <AboutContact />
+        <About />
+        <Contact />
         <Footer />
     </>
   )

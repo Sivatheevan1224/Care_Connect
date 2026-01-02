@@ -1,168 +1,81 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Modal from '../components/Modal'
+import { getAllPatients, updatePatientStatus } from '../services/api'
 
 const ManagePatients = () => {
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [editingPatient, setEditingPatient] = useState(null)
-  const [patients, setPatients] = useState([
-    {
-      id: 1,
-      name: 'John Smith',
-      phone: '+1 234 567 8904',
-      email: 'john.smith@example.com',
-      joinDate: '2024-01-15',
-      status: 'Active',
-      password: 'password123'
-    },
-    {
-      id: 2,
-      name: 'Sarah Williams',
-      phone: '+1 234 567 8905',
-      email: 'sarah.williams@example.com',
-      joinDate: '2024-03-20',
-      status: 'Active',
-      password: 'careconnect_secure'
-    },
-    {
-      id: 3,
-      name: 'David Brown',
-      phone: '+1 234 567 8906',
-      email: 'david.brown@example.com',
-      joinDate: '2023-11-10',
-      status: 'Active',
-      password: 'patient_pass_2024'
-    }
-  ])
-
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    joinDate: '',
-    status: 'Active'
-  })
+  const [patients, setPatients] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   // Modal States
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null });
 
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
+  useEffect(() => {
+    fetchPatients()
+  }, [])
 
-
-  const handleEditPatient = (member) => {
-    setEditingPatient(member)
-    setFormData(member)
-    setShowAddForm(true)
-  }
-
-  const handleUpdatePatient = (e) => {
-    e.preventDefault()
-    setPatients(patients.map(s => s.id === editingPatient.id ? { ...formData, id: editingPatient.id } : s))
-    setFormData({ name: '', phone: '', email: '', joinDate: '', status: 'Active' })
-    setShowAddForm(false)
-    setEditingPatient(null)
+  const fetchPatients = async () => {
+    try {
+      setLoading(true)
+      const response = await getAllPatients()
+      if (response.patients) {
+        setPatients(response.patients)
+      }
+    } catch (err) {
+      console.error('Error fetching patients:', err)
+      setError('Failed to load patients')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleToggleStatus = (id) => {
+    const patient = patients.find(p => p._id === id);
+    const newStatus = patient.status === 'Active' ? 'Inactive' : 'Active';
+    
     setConfirmModal({
       isOpen: true,
       title: 'Change Status',
-      message: 'Are you sure you want to change the status of this patient?',
-      onConfirm: () => {
-        setPatients(prevPatients => prevPatients.map(s => {
-          if (s.id === id) {
-            return {
-              ...s,
-              status: s.status === 'Active' ? 'Inactive' : 'Active'
-            }
-          }
-          return s
-        }));
-        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      message: `Are you sure you want to change this patient's status to ${newStatus}?`,
+      onConfirm: async () => {
+        try {
+          await updatePatientStatus(id, newStatus);
+          // Update local state
+          setPatients(patients.map(p => 
+            p._id === id ? { ...p, status: newStatus } : p
+          ));
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        } catch (error) {
+          console.error('Error updating patient status:', error);
+          alert('Failed to update patient status. Please try again.');
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        }
       }
-    });
+    })
   }
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-xl text-gray-600">Loading patients...</div>
+      </div>
+    )
+  }
 
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-xl text-red-600">{error}</div>
+      </div>
+    )
+  }
 
   return (
     <div>
-      <div className="mb-8 flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Manage Patients</h1>
-          <p className="text-gray-600">Add, edit, or remove patient accounts</p>
-        </div>
-
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Manage Patients</h1>
+        <p className="text-gray-600">View and manage registered patients</p>
       </div>
-
-      {showAddForm && (
-        <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">
-            Patient Details
-          </h2>
-          <form>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  readOnly
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  readOnly
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  readOnly
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Join Date</label>
-                <input
-                  type="date"
-                  name="joinDate"
-                  value={formData.joinDate}
-                  readOnly
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 focus:outline-none"
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAddForm(false)
-                  setEditingPatient(null)
-                  setFormData({ name: '', phone: '', email: '', joinDate: '', status: 'Active' })
-                }}
-                className="px-6 py-2 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition-all"
-              >
-                Close
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <div className="overflow-x-auto">
@@ -179,34 +92,25 @@ const ManagePatients = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {patients.map((member) => (
-                <tr key={member.id} className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4 text-sm text-gray-800 font-semibold">#{member.id}</td>
+              {patients.map((member, index) => (
+                <tr key={member._id} className="hover:bg-gray-50 transition">
+                  <td className="px-6 py-4 text-sm text-gray-800 font-semibold">#{index + 1}</td>
                   <td className="px-6 py-4 text-sm text-gray-800 font-medium">{member.name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{member.phone}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{member.phone || 'N/A'}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{member.email}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{member.joinDate}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {member.createdAt ? new Date(member.createdAt).toLocaleDateString() : 'N/A'}
+                  </td>
                   <td className="px-6 py-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${member.status === 'Active' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
                       }`}>
-                      {member.status}
+                      {member.status || 'Active'}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-2">
-
                       <button
-                        onClick={() => handleEditPatient(member)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                        title="View Details"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => handleToggleStatus(member.id)}
+                        onClick={() => handleToggleStatus(member._id)}
                         className={`p-2 rounded-lg transition ${member.status === 'Active' ? 'text-orange-500 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'}`}
                         title={member.status === 'Active' ? 'Deactivate Account' : 'Activate Account'}
                       >

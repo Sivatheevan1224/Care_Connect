@@ -1,38 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Modal from '../components/Modal'
+import { getAllDoctors, addDoctor, updateDoctor, deleteDoctor } from '../services/api'
 
 const ManageDoctors = () => {
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingDoctor, setEditingDoctor] = useState(null)
-  const [doctors, setDoctors] = useState([
-    {
-      id: 1,
-      name: 'Dr. Sarah Johnson',
-      specialization: 'Cardiology',
-      phone: '+1 234 567 8901',
-      email: 'sarah.johnson@careconnect.com',
-      experience: '15 years',
-      status: 'Active'
-    },
-    {
-      id: 2,
-      name: 'Dr. Michael Chen',
-      specialization: 'Pediatrics',
-      phone: '+1 234 567 8902',
-      email: 'michael.chen@careconnect.com',
-      experience: '10 years',
-      status: 'Active'
-    },
-    {
-      id: 3,
-      name: 'Dr. Emily Roberts',
-      specialization: 'Dermatology',
-      phone: '+1 234 567 8903',
-      email: 'emily.roberts@careconnect.com',
-      experience: '8 years',
-      status: 'Active'
-    }
-  ])
+  const [doctors, setDoctors] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   // Modal State
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null });
@@ -43,8 +18,28 @@ const ManageDoctors = () => {
     phone: '',
     email: '',
     experience: '',
+    hospital: '',
     status: 'Active'
   })
+
+  useEffect(() => {
+    fetchDoctors()
+  }, [])
+
+  const fetchDoctors = async () => {
+    try {
+      setLoading(true)
+      const response = await getAllDoctors()
+      if (response.doctors) {
+        setDoctors(response.doctors)
+      }
+    } catch (err) {
+      console.error('Error fetching doctors:', err)
+      setError('Failed to load doctors')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleInputChange = (e) => {
     setFormData({
@@ -53,41 +48,84 @@ const ManageDoctors = () => {
     })
   }
 
-  const handleAddDoctor = (e) => {
+  const handleAddDoctor = async (e) => {
     e.preventDefault()
-    const newDoctor = {
-      id: doctors.length + 1,
-      ...formData
+    try {
+      const response = await addDoctor(formData)
+      if (response.doctor) {
+        await fetchDoctors() // Refresh the list
+        setFormData({ name: '', specialization: '', phone: '', email: '', experience: '', hospital: '', status: 'Active' })
+        setShowAddForm(false)
+      }
+    } catch (err) {
+      console.error('Error adding doctor:', err)
+      alert('Failed to add doctor: ' + err.message)
     }
-    setDoctors([...doctors, newDoctor])
-    setFormData({ name: '', specialization: '', phone: '', email: '', experience: '', status: 'Active' })
-    setShowAddForm(false)
   }
 
   const handleEditDoctor = (doctor) => {
     setEditingDoctor(doctor)
-    setFormData(doctor)
+    setFormData({
+      name: doctor.name,
+      specialization: doctor.specialization,
+      phone: doctor.phone,
+      email: doctor.email,
+      experience: doctor.experience,
+      hospital: doctor.hospital || '',
+      status: doctor.status || 'Active'
+    })
     setShowAddForm(true)
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const handleUpdateDoctor = (e) => {
+  const handleUpdateDoctor = async (e) => {
     e.preventDefault()
-    setDoctors(doctors.map(doc => doc.id === editingDoctor.id ? { ...formData, id: editingDoctor.id } : doc))
-    setFormData({ name: '', specialization: '', phone: '', email: '', experience: '', status: 'Active' })
-    setShowAddForm(false)
-    setEditingDoctor(null)
+    try {
+      await updateDoctor(editingDoctor._id, formData)
+      await fetchDoctors() // Refresh the list
+      setFormData({ name: '', specialization: '', phone: '', email: '', experience: '', hospital: '', status: 'Active' })
+      setShowAddForm(false)
+      setEditingDoctor(null)
+    } catch (err) {
+      console.error('Error updating doctor:', err)
+      alert('Failed to update doctor: ' + err.message)
+    }
   }
 
-  const handleDeleteDoctor = (id) => {
+  const handleDeleteDoctor = (doctorId) => {
     setConfirmModal({
       isOpen: true,
       title: 'Delete Doctor',
       message: 'Are you sure you want to delete this doctor? This action cannot be undone.',
-      onConfirm: () => {
-        setDoctors(doctors.filter(doc => doc.id !== id));
-        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      onConfirm: async () => {
+        try {
+          await deleteDoctor(doctorId);
+          await fetchDoctors(); // Refresh the list
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        } catch (err) {
+          console.error('Error deleting doctor:', err);
+          alert('Failed to delete doctor: ' + err.message);
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        }
       }
     });
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-xl text-gray-600">Loading doctors...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-xl text-red-600">{error}</div>
+      </div>
+    )
   }
 
   return (
@@ -175,6 +213,17 @@ const ManageDoctors = () => {
                 />
               </div>
               <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Hospital</label>
+                <input
+                  type="text"
+                  name="hospital"
+                  value={formData.hospital}
+                  onChange={handleInputChange}
+                  placeholder="e.g., City General Hospital"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Status*</label>
                 <select
                   name="status"
@@ -199,7 +248,7 @@ const ManageDoctors = () => {
                 onClick={() => {
                   setShowAddForm(false)
                   setEditingDoctor(null)
-                  setFormData({ name: '', specialization: '', phone: '', email: '', experience: '', status: 'Active' })
+                  setFormData({ name: '', specialization: '', phone: '', email: '', experience: '', hospital: '', status: 'Active' })
                 }}
                 className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition-all"
               >
@@ -226,9 +275,9 @@ const ManageDoctors = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {doctors.map((doctor) => (
-                <tr key={doctor.id} className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4 text-sm text-gray-800 font-semibold">#{doctor.id}</td>
+              {doctors.map((doctor, index) => (
+                <tr key={doctor._id} className="hover:bg-gray-50 transition">
+                  <td className="px-6 py-4 text-sm text-gray-800 font-semibold">#{index + 1}</td>
                   <td className="px-6 py-4 text-sm text-gray-800 font-medium">{doctor.name}</td>
                   <td className="px-6 py-4 text-sm text-purple-600 font-medium">{doctor.specialization}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{doctor.phone}</td>
@@ -237,7 +286,7 @@ const ManageDoctors = () => {
                   <td className="px-6 py-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${doctor.status === 'Active' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
                       }`}>
-                      {doctor.status}
+                      {doctor.status || 'Active'}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -252,7 +301,7 @@ const ManageDoctors = () => {
                         </svg>
                       </button>
                       <button
-                        onClick={() => handleDeleteDoctor(doctor.id)}
+                        onClick={() => handleDeleteDoctor(doctor._id)}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

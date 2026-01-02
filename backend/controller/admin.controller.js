@@ -14,7 +14,6 @@ const addDoctor = async (req, res) => {
     const {
       name,
       email,
-      password,
       phone,
       specialization,
       hospital,
@@ -22,21 +21,15 @@ const addDoctor = async (req, res) => {
     } = req.body;
     const imageFile = req.file || req.files?.[0];
 
-    if (!name || !email || !password) {
+    if (!name || !email) {
       return res
         .status(400)
-        .json({ message: "Name, email, and password are required" });
+        .json({ message: "Name and email are required" });
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ message: "Invalid email format" });
-    }
-
-    if (password.length < 6) {
-      return res
-        .status(400)
-        .json({ message: "Password must be at least 6 characters long" });
     }
 
     const existingDoctor = await Doctor.findOne({ email });
@@ -51,13 +44,9 @@ const addDoctor = async (req, res) => {
       imageUrl = await uploadToCloudinary(imageFile, "doctors");
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
     const doctor = new Doctor({
       name,
       email,
-      password: hashedPassword,
       phone,
       specialization,
       hospital,
@@ -84,6 +73,87 @@ const addDoctor = async (req, res) => {
     console.error(error);
     res.status(500).json({
       message: "Error in adding doctor controller",
+      error: error.message,
+    });
+  }
+};
+
+//update doctor details
+const updateDoctor = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      name,
+      email,
+      password,
+      phone,
+      specialization,
+      hospital,
+      experience,
+      status,
+    } = req.body;
+
+    const doctor = await Doctor.findById(id);
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found" });
+    }
+
+    // Update fields
+    if (name) doctor.name = name;
+    if (email) doctor.email = email;
+    if (phone) doctor.phone = phone;
+    if (specialization) doctor.specialization = specialization;
+    if (hospital) doctor.hospital = hospital;
+    if (experience) doctor.experience = experience;
+    if (status) doctor.status = status;
+
+    // Update password if provided
+    if (password && password.length >= 6) {
+      const salt = await bcrypt.genSalt(10);
+      doctor.password = await bcrypt.hash(password, salt);
+    }
+
+    await doctor.save();
+
+    return res.status(200).json({
+      message: "Doctor updated successfully",
+      doctor: {
+        id: doctor._id,
+        name: doctor.name,
+        email: doctor.email,
+        phone: doctor.phone,
+        specialization: doctor.specialization,
+        hospital: doctor.hospital,
+        experience: doctor.experience,
+        status: doctor.status,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error updating doctor",
+      error: error.message,
+    });
+  }
+};
+
+//delete doctor
+const deleteDoctor = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const doctor = await Doctor.findByIdAndDelete(id);
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found" });
+    }
+
+    return res.status(200).json({
+      message: "Doctor deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error deleting doctor",
       error: error.message,
     });
   }
@@ -328,8 +398,48 @@ const updateAppointmentStatus = async (req, res) => {
   }
 };
 
+// Update patient status (Active/Inactive)
+const updatePatientStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status || !["Active", "Inactive"].includes(status)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid status. Must be 'Active' or 'Inactive'" 
+      });
+    }
+
+    const patient = await Patient.findById(id);
+    if (!patient) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Patient not found" 
+      });
+    }
+
+    patient.status = status;
+    await patient.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `Patient status updated to ${status}`,
+      patient
+    });
+  } catch (error) {
+    console.error("Error updating patient status:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Error updating patient status" 
+    });
+  }
+};
+
 export {
   addDoctor,
+  updateDoctor,
+  deleteDoctor,
   adminLogin,
   viewDoctorList,
   viewDoctorById,
@@ -337,4 +447,5 @@ export {
   getDashboardStats,
   getAllPatients,
   updateAppointmentStatus,
+  updatePatientStatus,
 };

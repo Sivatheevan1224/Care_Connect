@@ -57,7 +57,7 @@ const Sidebar = () => {
   return (
     <aside className="w-64 bg-gradient-to-b from-purple-900 to-indigo-900 text-white h-screen fixed left-0 top-0 overflow-y-auto flex flex-col z-50">
       <div className="p-6 flex-1 flex flex-col">
-        <div className="flex items-center gap-3 mb-8">
+        <Link to="/dashboard" className="flex items-center gap-3 mb-8 hover:opacity-80 transition">
           <div className="bg-gradient-to-br from-purple-400 to-indigo-500 p-2 rounded-xl">
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
@@ -68,7 +68,7 @@ const Sidebar = () => {
             <h2 className="text-xl font-bold">CareConnect</h2>
             <p className="text-xs text-purple-300">Admin Portal</p>
           </div>
-        </div>
+        </Link>
 
         <nav className="space-y-2 flex-1">
           {menuItems.map((item) => (

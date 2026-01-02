@@ -1,61 +1,76 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Modal from '../components/Modal'
+import { getAllAppointments, updateAppointmentStatus } from '../services/api'
 
 const ManageAppointments = () => {
-    const [appointments, setAppointments] = useState([
-        {
-            id: 1,
-            patientName: 'John Smith',
-            doctor: 'Dr. Sarah Johnson',
-            date: '2024-01-20',
-            time: '10:00 AM',
-            status: 'Scheduled',
-            reason: 'Regular Checkup'
-        },
-        {
-            id: 2,
-            patientName: 'Sarah Williams',
-            doctor: 'Dr. Michael Chen',
-            date: '2024-01-21',
-            time: '02:00 PM',
-            status: 'Pending',
-            reason: 'Cardiology Consultation'
-        },
-        {
-            id: 3,
-            patientName: 'David Brown',
-            doctor: 'Dr. Emily Roberts',
-            date: '2024-01-22',
-            time: '11:00 AM',
-            status: 'Completed',
-            reason: 'Pediatric Checkup'
-        }
-    ])
+    const [appointments, setAppointments] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState('')
 
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null })
+
+    useEffect(() => {
+        fetchAppointments()
+    }, [])
+
+    const fetchAppointments = async () => {
+        try {
+            setLoading(true)
+            const response = await getAllAppointments()
+            if (response.appointments) {
+                setAppointments(response.appointments)
+            }
+        } catch (err) {
+            console.error('Error fetching appointments:', err)
+            setError('Failed to load appointments')
+        } finally {
+            setLoading(false)
+        }
+    }
 
     const handleStatusChange = (appointment, newStatus) => {
         setConfirmModal({
             isOpen: true,
             title: 'Update Appointment Status',
             message: `Are you sure you want to change the status to ${newStatus}?`,
-            onConfirm: () => {
-                setAppointments(appointments.map(app =>
-                    app.id === appointment.id ? { ...app, status: newStatus } : app
-                ))
-                setConfirmModal({ ...confirmModal, isOpen: false })
+            onConfirm: async () => {
+                try {
+                    await updateAppointmentStatus(appointment._id, newStatus)
+                    await fetchAppointments() // Refresh the list
+                    setConfirmModal({ ...confirmModal, isOpen: false })
+                } catch (err) {
+                    console.error('Error updating appointment:', err)
+                    alert('Failed to update appointment status')
+                    setConfirmModal({ ...confirmModal, isOpen: false })
+                }
             }
         })
     }
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'Scheduled': return 'bg-blue-100 text-blue-600'
+            case 'Confirmed': return 'bg-blue-100 text-blue-600'
             case 'Completed': return 'bg-green-100 text-green-600'
             case 'Pending': return 'bg-yellow-100 text-yellow-600'
             case 'Cancelled': return 'bg-red-100 text-red-600'
             default: return 'bg-gray-100 text-gray-600'
         }
+    }
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-96">
+                <div className="text-xl text-gray-600">Loading appointments...</div>
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="flex items-center justify-center h-96">
+                <div className="text-xl text-red-600">{error}</div>
+            </div>
+        )
     }
 
     return (
@@ -79,14 +94,18 @@ const ManageAppointments = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                            {appointments.map((appointment) => (
-                                <tr key={appointment.id} className="hover:bg-gray-50 transition">
-                                    <td className="px-6 py-4 text-sm text-gray-800 font-semibold">#{appointment.id}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-800 font-medium">{appointment.patientName}</td>
-                                    <td className="px-6 py-4 text-sm text-teal-600 font-medium">{appointment.doctor}</td>
+                            {appointments.map((appointment, index) => (
+                                <tr key={appointment._id} className="hover:bg-gray-50 transition">
+                                    <td className="px-6 py-4 text-sm text-gray-800 font-semibold">#{index + 1}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-800 font-medium">
+                                        {appointment.patient?.name || 'N/A'}
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-teal-600 font-medium">
+                                        {appointment.doctor?.name || 'N/A'}
+                                    </td>
                                     <td className="px-6 py-4 text-sm text-gray-600">
-                                        {appointment.date}<br />
-                                        <span className="text-xs">{appointment.time}</span>
+                                        {new Date(appointment.date).toLocaleDateString()}<br />
+                                        <span className="text-xs">{appointment.time || 'N/A'}</span>
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(appointment.status)}`}>
@@ -97,13 +116,21 @@ const ManageAppointments = () => {
                                         <div className="flex gap-2">
                                             {appointment.status === 'Pending' && (
                                                 <button
-                                                    onClick={() => handleStatusChange(appointment, 'Scheduled')}
+                                                    onClick={() => handleStatusChange(appointment, 'Confirmed')}
                                                     className="px-3 py-1 bg-green-100 text-green-600 hover:bg-green-200 rounded text-xs font-semibold transition"
                                                 >
-                                                    Approve
+                                                    Confirm
                                                 </button>
                                             )}
-                                            {appointment.status !== 'Cancelled' && (
+                                            {appointment.status === 'Confirmed' && (
+                                                <button
+                                                    onClick={() => handleStatusChange(appointment, 'Completed')}
+                                                    className="px-3 py-1 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded text-xs font-semibold transition"
+                                                >
+                                                    Complete
+                                                </button>
+                                            )}
+                                            {appointment.status !== 'Cancelled' && appointment.status !== 'Completed' && (
                                                 <button
                                                     onClick={() => handleStatusChange(appointment, 'Cancelled')}
                                                     className="px-3 py-1 bg-red-100 text-red-600 hover:bg-red-200 rounded text-xs font-semibold transition"

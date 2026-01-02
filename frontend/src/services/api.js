@@ -53,15 +53,16 @@ export const adminLogin = async (credentials) => {
       body: JSON.stringify(credentials),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      throw new Error("Login failed");
+      throw new Error(data.message || "Admin login failed");
     }
 
-    const data = await response.json();
     return data;
   } catch (error) {
     console.error("Error during login:", error);
-    throw error;
+    throw new Error(error.message || "Login failed");
   }
 };
 
@@ -76,16 +77,16 @@ export const patientRegister = async (userData) => {
       body: JSON.stringify(userData),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Registration failed");
+      throw new Error(data.message || "Registration failed");
     }
 
-    const data = await response.json();
     return data;
   } catch (error) {
     console.error("Error during registration:", error);
-    throw error;
+    throw new Error(error.message || "Registration failed");
   }
 };
 
@@ -100,16 +101,16 @@ export const patientLogin = async (credentials) => {
       body: JSON.stringify(credentials),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Login failed");
+      throw new Error(data.message || "Patient login failed");
     }
 
-    const data = await response.json();
     return data;
   } catch (error) {
     console.error("Error during login:", error);
-    throw error;
+    throw new Error(error.message || "Error in patient login");
   }
 };
 

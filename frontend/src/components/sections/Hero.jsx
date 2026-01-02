@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { patientLogin, patientRegister } from "../../services/api";
+import { patientLogin, patientRegister, adminLogin } from "../../services/api";
 
 const Hero = () => {
   const { user, login, logout } = useAuth();
@@ -49,16 +49,29 @@ const Hero = () => {
 
     try {
       if (isLogin) {
-        // Handle login
-        const response = await patientLogin({ email, password });
-        login(response.patient, response.token);
-        setShowAuthPopup(false);
-        // Redirect to patient dashboard
-        setTimeout(() => {
-          navigate("/patient/dashboard");
-        }, 100);
+        // Try admin login first
+        try {
+          const adminResponse = await adminLogin({ email, password });
+          // If admin login succeeds, store token and redirect to admin dashboard
+          localStorage.setItem("adminToken", adminResponse.token);
+          setShowAuthPopup(false);
+          setTimeout(() => {
+            // Redirect to admin frontend (running on different port)
+            window.location.href = "http://localhost:5174";
+          }, 100);
+          return;
+        } catch (adminError) {
+          // If admin login fails, try patient login
+          const response = await patientLogin({ email, password });
+          login(response.patient, response.token);
+          setShowAuthPopup(false);
+          // Redirect to patient dashboard
+          setTimeout(() => {
+            navigate("/patient/dashboard");
+          }, 100);
+        }
       } else {
-        // Handle registration
+        // Handle registration (patients only)
         const response = await patientRegister({ name, email, password });
         login(response.patient, response.token);
         setShowAuthPopup(false);

@@ -170,4 +170,36 @@ const viewDoctorById = async (req, res) => {
   }
 };
 
-export { addDoctor, adminLogin, viewDoctorList, viewDoctorById };
+//get appointments to the admin panel 
+const getAppointments = async (req, res) => {
+  try {
+    const appointments = await Appointment.find()
+      .populate("patient", "name email phone")
+      .populate("doctor", "name email phone specialization hospital")
+      .sort({ date: -1 });
+
+    if (!appointments || appointments.length === 0)
+      return res.status(404).json({ message: "No appointments found" });
+    return res.status(200).json({
+      message: "Appointments retrieved successfully",
+      count: appointments.length,
+      appointments,
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({
+        message: "Error in fetching appointments",
+        error: error.message,
+      });
+  }
+};
+
+export {
+  addDoctor,
+  adminLogin,
+  viewDoctorList,
+  viewDoctorById,
+  getAppointments,
+};

@@ -116,6 +116,9 @@ export const patientLogin = async (credentials) => {
 // Book appointment
 export const bookAppointment = async (appointmentData, token) => {
   try {
+    console.log("API: Booking appointment with data:", appointmentData);
+    console.log("API: Using token:", token ? "Token exists" : "No token");
+
     const response = await fetch(`${API_BASE_URL}/patient/appointment`, {
       method: "PUT",
       headers: {
@@ -125,15 +128,19 @@ export const bookAppointment = async (appointmentData, token) => {
       body: JSON.stringify(appointmentData),
     });
 
+    console.log("API: Response status:", response.status);
+
     if (!response.ok) {
       const errorData = await response.json();
+      console.error("API: Error response:", errorData);
       throw new Error(errorData.message || "Failed to book appointment");
     }
 
     const data = await response.json();
+    console.log("API: Success response:", data);
     return data;
   } catch (error) {
-    console.error("Error booking appointment:", error);
+    console.error("API: Error booking appointment:", error);
     throw error;
   }
 };
@@ -193,27 +200,27 @@ export const cancelAppointment = async (appointmentId, token) => {
 export const getDoctorList = async (filters = {}) => {
   try {
     const queryParams = new URLSearchParams();
-    if (filters.specialization && filters.specialization !== 'All') {
-      queryParams.append('specialization', filters.specialization);
+    if (filters.specialization && filters.specialization !== "All") {
+      queryParams.append("specialization", filters.specialization);
     }
     if (filters.hospital) {
-      queryParams.append('hospital', filters.hospital);
+      queryParams.append("hospital", filters.hospital);
     }
 
     const url = `${API_BASE_URL}/doctor/list${
-      queryParams.toString() ? `?${queryParams.toString()}` : ''
+      queryParams.toString() ? `?${queryParams.toString()}` : ""
     }`;
     const response = await fetch(url);
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to fetch doctors');
+      throw new Error(errorData.message || "Failed to fetch doctors");
     }
 
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error fetching doctor list:', error);
+    console.error("Error fetching doctor list:", error);
     throw error;
   }
 };

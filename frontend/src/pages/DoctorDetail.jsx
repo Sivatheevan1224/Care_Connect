@@ -10,7 +10,9 @@ const DoctorDetail = () => {
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const [selectedTime, setSelectedTime] = useState("");
   const [reason, setReason] = useState("");
   const [bookingLoading, setBookingLoading] = useState(false);
@@ -37,8 +39,8 @@ const DoctorDetail = () => {
 
   const handleBookAppointment = async () => {
     if (!user || !token) {
-      alert("Please login to book an appointment");
-      navigate("/");
+      setBookingError("Please login to book an appointment");
+      setTimeout(() => navigate("/"), 2000);
       return;
     }
 
@@ -60,17 +62,21 @@ const DoctorDetail = () => {
         reason: reason || "General consultation",
       };
 
-      await bookAppointment(appointmentData, token);
+      console.log("Sending appointment data:", appointmentData);
+      const response = await bookAppointment(appointmentData, token);
+      console.log("Appointment response:", response);
+
       setBookingSuccess(true);
-      setSelectedDate("");
+
       setSelectedTime("");
       setReason("");
 
-      // Show success message for 3 seconds then redirect
+      // Show success message for 2 seconds then redirect
       setTimeout(() => {
         navigate("/patient/dashboard");
       }, 2000);
     } catch (err) {
+      console.error("Booking error:", err);
       setBookingError(err.message || "Failed to book appointment");
     } finally {
       setBookingLoading(false);
@@ -311,14 +317,13 @@ const DoctorDetail = () => {
                   {/* Date Selection */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Select Date
+                      Appointment Date
                     </label>
                     <input
                       type="date"
                       value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                      min={new Date().toISOString().split("T")[0]}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      readOnly
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
                     />
                   </div>
 

@@ -106,7 +106,7 @@ const loginPatient = async (req, res) => {
   }
 };
 
-//get the profile information 
+//get the profile information
 const getProfile = async (req, res) => {
   try {
     const patientId = req.patient?.id;
@@ -131,7 +131,7 @@ const getProfile = async (req, res) => {
   }
 };
 
-//update the profile information 
+//update the profile information
 const updateProfile = async (req, res) => {
   try {
     const patientId = req.patient?.id;
@@ -198,30 +198,46 @@ const updateProfile = async (req, res) => {
 const bookAppointment = async (req, res) => {
   try {
     const { patientId, doctorId, date, timeSlot, reason } = req.body;
-    if (!patientId || !doctorId || !date || !timeSlot)
+
+    console.log("Booking appointment with data:", {
+      patientId,
+      doctorId,
+      date,
+      timeSlot,
+      reason,
+    });
+
+    if (!patientId || !doctorId || !date || !timeSlot) {
       return res
         .status(400)
         .json({ message: "Patient, doctor, date, and timeSlot are required" });
+    }
 
     const patient = await Patient.findById(patientId);
     const doctor = await Doctor.findById(doctorId);
 
     if (!patient) {
+      console.log("Patient not found:", patientId);
       return res.status(404).json({ message: "Patient not found" });
     }
     if (!doctor) {
+      console.log("Doctor not found:", doctorId);
       return res.status(404).json({ message: "Doctor not found" });
     }
+
     const existingAppointment = await Appointment.findOne({
       doctor: doctorId,
       date,
       timeSlot,
     });
+
     if (existingAppointment) {
+      console.log("Time slot already booked:", { doctorId, date, timeSlot });
       return res
         .status(400)
         .json({ message: "Doctor is already booked for this time slot" });
     }
+
     const appointment = new Appointment({
       patient: patientId,
       doctor: doctorId,
@@ -230,13 +246,19 @@ const bookAppointment = async (req, res) => {
       reason,
       status: "Pending",
     });
-    await appointment.save();
+
+    const savedAppointment = await appointment.save();
+    console.log("Appointment saved successfully:", savedAppointment._id);
+
     return res
       .status(201)
-      .json({ message: "Appointment booked successfully", appointment });
+      .json({
+        message: "Appointment booked successfully",
+        appointment: savedAppointment,
+      });
   } catch (error) {
-    console.error(error);
-    res
+    console.error("Error in booking appointment:", error);
+    return res
       .status(500)
       .json({ message: "Error in booking appointment", error: error.message });
   }

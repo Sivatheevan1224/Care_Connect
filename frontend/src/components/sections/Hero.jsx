@@ -1,9 +1,14 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 
 const Hero = () => {
   const openMenuRef = useRef(null);
   const closeMenuRef = useRef(null);
   const navLinksRef = useRef(null);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [authState, setAuthState] = useState("login");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     const openMenu = openMenuRef.current;
@@ -28,6 +33,18 @@ const Hero = () => {
       closeMenu?.removeEventListener("click", closeMenuHandler);
     };
   }, []);
+
+  const handleLoginSubmit = (e) => {
+    e.preventDefault();
+    // Handle login/register logic here
+    console.log({ name, email, password, authState });
+    setShowLoginPopup(false);
+    // Reset form
+    setName("");
+    setEmail("");
+    setPassword("");
+    setAuthState("login");
+  };
 
   return (
     <section className="flex flex-col items-center bg-gradient-to-br from-teal-50 via-blue-50 to-cyan-50 min-h-screen w-full" style={{ fontFamily: "'Poppins', sans-serif" }}>
@@ -58,10 +75,7 @@ const Hero = () => {
         </div>
 
         <div className="hidden md:block space-x-3">
-          <button className="px-6 py-2 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 transition text-white font-semibold rounded-lg shadow-md">
-            Book Appointment
-          </button>
-          <button className="hover:bg-teal-50 transition px-6 py-2 border-2 border-teal-500 text-teal-600 font-semibold rounded-lg">
+          <button onClick={() => setShowLoginPopup(true)} className="hover:bg-teal-50 transition px-6 py-2 border-2 border-teal-500 text-teal-600 font-semibold rounded-lg">
             Login
           </button>
         </div>
@@ -97,18 +111,18 @@ const Hero = () => {
           <span className="bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent"> Better Well-being</span>
         </h1>
         <p className="text-center text-lg mt-6 text-gray-600 leading-relaxed max-w-4xl">
-          CareConnect helps community clinics manage appointments, maintain patient records, and share preventive health awareness — improving accessibility, efficiency, and community well-being.
+          CareConnect helps community clinics manage appointments, maintain patient records, and share preventive health awareness improving accessibility, efficiency, and community well-being.
         </p>
         <div className="flex flex-col sm:flex-row items-center gap-4 mt-10">
-          <button className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold active:scale-95 rounded-lg px-8 py-3.5 shadow-lg transition">
+          <button onClick={() => setShowLoginPopup(true)} className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold active:scale-95 rounded-lg px-8 py-3.5 shadow-lg transition">
             Book Appointment Now
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M4.166 10h11.667m0 0L9.999 4.165m5.834 5.833-5.834 5.834" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
-          <button className="border-2 border-teal-500 text-teal-600 font-semibold active:scale-95 hover:bg-teal-50 transition rounded-lg px-8 py-3.5 shadow-md">
+          <a href="#services" className="border-2 border-teal-500 text-teal-600 font-semibold active:scale-95 hover:bg-teal-50 transition rounded-lg px-8 py-3.5 shadow-md inline-block text-center">
             Learn More
-          </button>
+          </a>
         </div>
       </div>
       
@@ -130,6 +144,79 @@ const Hero = () => {
           </div>
         </div>
       </div>
+
+      {/* Login/Register Popup */}
+      {showLoginPopup && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setShowLoginPopup(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8 relative" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setShowLoginPopup(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            
+            <div className="text-center mb-6">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-2">
+                {authState === "login" ? "Welcome Back" : "Create Account"}
+              </h2>
+              <p className="text-gray-600">
+                {authState === "login" ? "Sign in to your account" : "Join CareConnect today"}
+              </p>
+            </div>
+
+            <form onSubmit={handleLoginSubmit} className="space-y-4">
+              {authState === "register" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition"
+                    placeholder="Enter your name"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition"
+                  placeholder="Enter your email"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition"
+                  placeholder="Enter your password"
+                />
+              </div>
+
+              <button type="submit" className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold py-3 rounded-lg shadow-lg transition active:scale-95">
+                {authState === "login" ? "Sign In" : "Sign Up"}
+              </button>
+            </form>
+
+            <div className="text-center mt-6">
+              <p className="text-gray-600">
+                {authState === "login" ? "Don't have an account? " : "Already have an account? "}
+                <button onClick={() => setAuthState(authState === "login" ? "register" : "login")} className="text-teal-600 font-semibold hover:text-teal-700 transition">
+                  {authState === "login" ? "Sign Up" : "Sign In"}
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

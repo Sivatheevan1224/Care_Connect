@@ -50,7 +50,7 @@ const Footer = () => {
         </div>
         
         <div className="mt-8 pt-8 border-t border-white/20 text-center text-sm">
-          <p>© 2026 CareConnect. Supporting SDG 3 & SDG 9. All rights reserved.</p>
+          <p>© 2026 CareConnect. Supporting SDG 3 & SDG 9. All rights reserved Binary Breakers❤️.</p>
         </div>
       </div>
     </footer>

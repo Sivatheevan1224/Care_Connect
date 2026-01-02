@@ -1,15 +1,31 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
-const AddAppointment = () => {
+const BookAppointment = () => {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  // Redirect if no doctor selected
+  useEffect(() => {
+    if (!location.state?.doctorName) {
+      navigate('/patient/doctors/check')
+    }
+  }, [location, navigate])
+
   const [formData, setFormData] = useState({
     patientName: '',
     patientPhone: '',
     patientEmail: '',
+    doctor: location.state?.doctorName || '',
     appointmentDate: '',
     appointmentTime: '',
     reason: '',
     priority: 'Normal'
   })
+
+  if (!location.state?.doctorName) {
+    return null // or a loading spinner while redirecting
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -27,62 +43,27 @@ const AddAppointment = () => {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Add New Appointment</h1>
-        <p className="text-gray-600">Schedule a new appointment for a patient</p>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Book New Appointment</h1>
+        <p className="text-gray-600">Scheduling visit with <span className="font-semibold text-teal-600">{formData.doctor}</span></p>
       </div>
 
       <div className="bg-white rounded-xl shadow-md p-8 max-w-3xl">
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Patient Name *
-              </label>
-              <input
-                type="text"
-                name="patientName"
-                value={formData.patientName}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition"
-                placeholder="Enter patient name"
-              />
+          {/* Doctor Name Display */}
+          <div className="bg-teal-50 border border-teal-100 rounded-lg p-4 mb-6 flex items-center gap-3">
+            <div className="p-2 bg-teal-100 rounded-full text-teal-600">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /><path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08v0c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66" /></svg>
             </div>
-
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Phone Number *
-              </label>
-              <input
-                type="tel"
-                name="patientPhone"
-                value={formData.patientPhone}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition"
-                placeholder="Enter phone number"
-              />
+              <p className="text-sm text-teal-600 font-medium">Selected Specialist</p>
+              <p className="text-lg font-bold text-teal-900">{formData.doctor}</p>
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Email Address
-            </label>
-            <input
-              type="email"
-              name="patientEmail"
-              value={formData.patientEmail}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition"
-              placeholder="Enter email address"
-            />
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Appointment Date *
+                Preferred Date *
               </label>
               <input
                 type="date"
@@ -96,7 +77,7 @@ const AddAppointment = () => {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Appointment Time *
+                Preferred Time *
               </label>
               <select
                 name="appointmentTime"
@@ -120,7 +101,7 @@ const AddAppointment = () => {
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Priority Level
+              Urgency Level
             </label>
             <select
               name="priority"
@@ -128,9 +109,9 @@ const AddAppointment = () => {
               onChange={handleChange}
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition"
             >
-              <option value="Normal">Normal</option>
-              <option value="Urgent">Urgent</option>
-              <option value="Emergency">Emergency</option>
+              <option value="Normal">Normal Checkup</option>
+              <option value="Urgent">Urgent Issue</option>
+              <option value="Follow-up">Follow-up Visit</option>
             </select>
           </div>
 
@@ -145,7 +126,7 @@ const AddAppointment = () => {
               required
               rows="4"
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition resize-none"
-              placeholder="Describe the reason for visit"
+              placeholder="Please briefly describe your symptoms or reason for visiting"
             ></textarea>
           </div>
 
@@ -154,7 +135,7 @@ const AddAppointment = () => {
               type="submit"
               className="flex-1 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold py-3 rounded-lg transition shadow-md hover:shadow-lg"
             >
-              Create Appointment
+              Confirm Booking
             </button>
             <button
               type="button"
@@ -169,4 +150,4 @@ const AddAppointment = () => {
   )
 }
 
-export default AddAppointment
+export default BookAppointment

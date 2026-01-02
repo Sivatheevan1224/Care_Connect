@@ -20,22 +20,23 @@ const patientSchema = new mongoose.Schema(
     phone: {
       type: String,
     },
-    age: {
-      type: Number,
+    dateOfBirth: {
+      type: Date,
     },
     gender: {
       type: String,
-      enum: ["Male", "Female", "Other"], 
+      enum: ["male", "female", "other"],
+      lowercase: true,
     },
     address: {
       type: String,
     },
     medicalHistory: {
-      type: [String], 
+      type: [String],
     },
     doctor: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Doctor", 
+      ref: "Doctor",
     },
   },
   { timestamps: true }

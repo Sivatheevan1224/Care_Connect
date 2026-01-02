@@ -105,6 +105,7 @@ const loginPatient = async (req, res) => {
 const getProfile = async (req, res) => {
   try {
     const patientId = req.patient?.id;
+
     if (!patientId) {
       return res
         .status(401)
@@ -118,7 +119,6 @@ const getProfile = async (req, res) => {
       .status(200)
       .json({ message: "Profile retrieved successfully", patient });
   } catch (error) {
-    console.error(error);
     res.status(500).json({
       message: "Error in fetching patient profile",
       error: error.message,
@@ -188,10 +188,4 @@ const updateProfile = async (req, res) => {
   }
 };
 
-
-export {
-  registerPatient,
-  loginPatient,
-  getProfile,
-  updateProfile,
-};
+export { registerPatient, loginPatient, getProfile, updateProfile };

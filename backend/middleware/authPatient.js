@@ -13,11 +13,17 @@ const authPatient = (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+    // Check if it's a patient
+    if (decoded.role !== "patient") {
+      return res
+        .status(403)
+        .json({ message: "Access denied. Patient role required." });
+    }
+
     // Attach patient info to request
     req.patient = decoded;
     next();
   } catch (error) {
-    console.error(error);
     return res.status(401).json({ message: "Invalid or expired token" });
   }
 };

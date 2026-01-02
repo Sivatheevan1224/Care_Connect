@@ -1,4 +1,6 @@
 import Doctor from "../model/doctor.model.js";
+import Patient from "../model/patient.model.js";
+import Appointment from "../model/appointments.model.js";
 import bcrypt from "bcrypt";
 import uploadToCloudinary from "../utils/cloudinaryUpload.js";
 import jwt from "jsonwebtoken";
@@ -170,7 +172,7 @@ const viewDoctorById = async (req, res) => {
   }
 };
 
-//get appointments to the admin panel 
+//get appointments to the admin panel
 const getAppointments = async (req, res) => {
   try {
     const appointments = await Appointment.find()
@@ -187,12 +189,142 @@ const getAppointments = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        message: "Error in fetching appointments",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error in fetching appointments",
+      error: error.message,
+    });
+  }
+};
+
+// Get dashboard statistics
+const getDashboardStats = async (req, res) => {
+  try {
+    const totalDoctors = await Doctor.countDocuments();
+    const totalPatients = await Patient.countDocuments();
+    const totalAppointments = await Appointment.countDocuments();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const appointmentsToday = await Appointment.countDocuments({
+      date: { $gte: today, $lt: tomorrow },
+    });
+
+    const specializations = await Doctor.distinct("specialization");
+    const activeSpecializations = specializations.filter((s) => s).length;
+
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const doctorsThisMonth = await Doctor.countDocuments({
+      createdAt: { $gte: firstDayOfMonth },
+    });
+
+    const patientsThisMonth = await Patient.countDocuments({
+      createdAt: { $gte: firstDayOfMonth },
+    });
+
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const appointmentsYesterday = await Appointment.countDocuments({
+      date: { $gte: yesterday, $lt: today },
+    });
+
+    const appointmentChange =
+      appointmentsYesterday > 0
+        ? (
+            ((appointmentsToday - appointmentsYesterday) /
+              appointmentsYesterday) *
+            100
+          ).toFixed(1)
+        : 0;
+
+    return res.status(200).json({
+      message: "Dashboard statistics retrieved successfully",
+      stats: {
+        totalDoctors,
+        totalPatients,
+        totalAppointments,
+        appointmentsToday,
+        activeSpecializations,
+        doctorsThisMonth,
+        patientsThisMonth,
+        appointmentChange: `${
+          appointmentChange > 0 ? "+" : ""
+        }${appointmentChange}%`,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error fetching dashboard statistics",
+      error: error.message,
+    });
+  }
+};
+
+// Get all patients
+const getAllPatients = async (req, res) => {
+  try {
+    const patients = await Patient.find()
+      .select("-password")
+      .sort({ createdAt: -1 });
+
+    if (!patients || patients.length === 0) {
+      return res.status(404).json({ message: "No patients found" });
+    }
+
+    return res.status(200).json({
+      message: "Patients retrieved successfully",
+      count: patients.length,
+      patients,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error fetching patients",
+      error: error.message,
+    });
+  }
+};
+
+// Update appointment status
+const updateAppointmentStatus = async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ message: "Status is required" });
+    }
+
+    const validStatuses = ["Pending", "Confirmed", "Cancelled", "Completed"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    const appointment = await Appointment.findByIdAndUpdate(
+      appointmentId,
+      { status },
+      { new: true }
+    )
+      .populate("patient", "name email phone")
+      .populate("doctor", "name email phone specialization");
+
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    return res.status(200).json({
+      message: "Appointment status updated successfully",
+      appointment,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error updating appointment status",
+      error: error.message,
+    });
   }
 };
 
@@ -202,4 +334,7 @@ export {
   viewDoctorList,
   viewDoctorById,
   getAppointments,
+  getDashboardStats,
+  getAllPatients,
+  updateAppointmentStatus,
 };

@@ -52,12 +52,11 @@ const Hero = () => {
         // Try admin login first
         try {
           const adminResponse = await adminLogin({ email, password });
-          // If admin login succeeds, store token and redirect to admin dashboard
-          localStorage.setItem("adminToken", adminResponse.token);
+          // If admin login succeeds, redirect to admin dashboard with token in URL
           setShowAuthPopup(false);
           setTimeout(() => {
-            // Redirect to admin frontend (running on different port)
-            window.location.href = "http://localhost:5174";
+            // Redirect to admin frontend (running on different port) with token as query param
+            window.location.href = `http://localhost:5174?token=${adminResponse.token}`;
           }, 100);
           return;
         } catch (adminError) {

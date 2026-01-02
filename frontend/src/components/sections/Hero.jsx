@@ -44,7 +44,7 @@ const Hero = () => {
 
   return (
     <section className="flex flex-col items-center bg-gradient-to-br from-teal-50 via-blue-50 to-cyan-50 min-h-screen w-full" style={{ fontFamily: "'Poppins', sans-serif" }}>
-      <nav className="z-50 flex items-center justify-between w-full py-4 px-4 md:px-8 lg:px-12 bg-white/80 backdrop-blur-sm shadow-sm">
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full py-4 px-4 md:px-8 lg:px-12 bg-white/80 backdrop-blur-sm shadow-sm">
         <div className="flex items-center gap-3">
           <div className="bg-gradient-to-br from-teal-500 to-blue-600 p-2 rounded-xl">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -97,7 +97,7 @@ const Hero = () => {
         </button>
       </div>
 
-      <div className="w-full flex flex-col items-center px-8">
+      <div className="w-full flex flex-col items-center px-8 pt-24">
         <div className="flex items-center mt-20 gap-2 border-2 border-teal-500 bg-white text-teal-700 rounded-full px-5 py-2.5 shadow-sm">
           <div className="size-2.5 bg-green-500 rounded-full animate-pulse"></div>
           <span className="font-semibold text-sm">Supporting SDG 3 & SDG 9 - Community Healthcare</span>

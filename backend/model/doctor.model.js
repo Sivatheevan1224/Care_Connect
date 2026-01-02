@@ -38,6 +38,11 @@ const doctorSchema = new mongoose.Schema(
       type: Number,
       required: false,
     },
+    availablity: {
+      type: String,
+      enum: ["available", "not available"],
+      default: "available",
+    },
     createdAt: {
       type: Date,
       default: Date.now,

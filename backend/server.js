@@ -24,8 +24,27 @@ app.use("/api/admin", adminRouter);
 app.use("/api/doctor", doctorRoute);
 app.use("/api/patient", patientRoute);
 
+// Root endpoint
 app.get("/", (req, res) => {
-  res.send("app is working ");
+  res.status(200).json({
+    success: true,
+    message: "Care Connect API is running",
+    version: "1.0.0",
+    endpoints: {
+      admin: "/api/admin",
+      doctor: "/api/doctor",
+      patient: "/api/patient"
+    }
+  });
+});
+
+// Health check endpoint for Azure
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
 
 app.listen(PORT, () => {

@@ -19,7 +19,7 @@ import { changeAvailability } from "../controller/doctor.controller.js";
 const adminRouter = express.Router();
 
 adminRouter.post("/add-doctor", adminAuth, upload.any(), addDoctor);
-adminRouter.put("/doctors/:id", adminAuth, updateDoctor);
+adminRouter.put("/doctors/:id", adminAuth, upload.any(), updateDoctor);
 adminRouter.delete("/doctors/:id", adminAuth, deleteDoctor);
 adminRouter.get("/view-doctor", adminAuth, viewDoctorList);
 adminRouter.get("/doctors", viewDoctorList);

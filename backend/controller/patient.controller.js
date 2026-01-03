@@ -7,7 +7,7 @@ import Appointment from "../model/appointments.model.js";
 //register a patient
 const registerPatient = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone, dateOfBirth, gender, address } = req.body;
 
     if (!name || !email || !password) {
       return res
@@ -40,6 +40,10 @@ const registerPatient = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      phone,
+      dateOfBirth,
+      gender,
+      address,
     });
 
     await patient.save();

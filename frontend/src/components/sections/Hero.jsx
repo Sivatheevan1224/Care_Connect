@@ -10,11 +10,14 @@ const Hero = () => {
   const closeMenuRef = useRef(null);
   const navLinksRef = useRef(null);
   const [showAuthPopup, setShowAuthPopup] = useState(false);
-  const [isLogin, setIsLogin] = useState(true);
+  const [isSignUp, setIsSignUp] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [gender, setGender] = useState("");
+  const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -48,7 +51,8 @@ const Hero = () => {
     setLoading(true);
 
     try {
-      if (isLogin) {
+      if (!isSignUp) {
+        // Login flow
         // Try admin login first
         try {
           const adminResponse = await adminLogin({ email, password });
@@ -71,7 +75,15 @@ const Hero = () => {
         }
       } else {
         // Handle registration (patients only)
-        const response = await patientRegister({ name, email, password });
+        const response = await patientRegister({ 
+          name, 
+          email, 
+          password, 
+          phone, 
+          dateOfBirth, 
+          gender, 
+          address 
+        });
         login(response.patient, response.token);
         setShowAuthPopup(false);
         // Redirect to patient dashboard
@@ -84,6 +96,10 @@ const Hero = () => {
       setName("");
       setEmail("");
       setPassword("");
+      setPhone("");
+      setDateOfBirth("");
+      setGender("");
+      setAddress("");
     } catch (err) {
       setError(err.message || "An error occurred");
     } finally {
@@ -121,7 +137,7 @@ const Hero = () => {
               <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08v0c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66" />
             </svg>
           </div>
-          <span className="text-2xl font-bold text-gray-800">CareConnect</span>
+          <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">CareConnect</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8 transition duration-500">
@@ -184,7 +200,7 @@ const Hero = () => {
             <button
               onClick={() => {
                 setShowAuthPopup(true);
-                setIsLogin(true);
+                setIsSignUp(false);
               }}
               className="hover:bg-teal-50 transition px-6 py-2 border-2 border-teal-500 text-teal-600 font-semibold rounded-lg"
             >
@@ -289,7 +305,7 @@ const Hero = () => {
           <button
             onClick={() => {
               setShowAuthPopup(true);
-              setIsLogin(true);
+              setIsSignUp(false);
             }}
             className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold active:scale-95 rounded-lg px-8 py-3.5 shadow-lg transition"
           >
@@ -341,16 +357,16 @@ const Hero = () => {
       {/* Login/Register Popup */}
       {showAuthPopup && (
         <div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
           onClick={() => setShowAuthPopup(false)}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8 relative"
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[90vh] flex overflow-hidden relative"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setShowAuthPopup(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+              className="absolute top-6 right-6 z-10 text-gray-400 hover:text-gray-600 transition bg-white rounded-full p-2 shadow-lg"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -368,18 +384,64 @@ const Hero = () => {
               </svg>
             </button>
 
-            <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-2">
-                {isSignUp ? "Patient Sign Up" : "Patient Login"}
-              </h2>
-              <p className="text-gray-600">
-                {isSignUp
-                  ? "Create an account to book appointments"
-                  : "Sign in to access your portal"}
-              </p>
+            {/* Left Side - Image/Branding */}
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-teal-500 via-teal-600 to-blue-600 p-12 flex-col justify-center items-center text-white relative overflow-hidden">
+              <div className="absolute inset-0 opacity-10">
+                <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+                  <circle cx="200" cy="200" r="150" fill="currentColor" />
+                  <circle cx="600" cy="600" r="200" fill="currentColor" />
+                  <circle cx="700" cy="200" r="100" fill="currentColor" />
+                </svg>
+              </div>
+              <div className="relative z-10 text-center">
+                <svg className="w-24 h-24 mx-auto mb-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/>
+                </svg>
+                <h1 className="text-4xl font-bold mb-4">Welcome to CareConnect</h1>
+                <p className="text-lg text-teal-50 mb-6">
+                  {isSignUp 
+                    ? "Join our healthcare platform and take control of your health journey" 
+                    : "Access your health records and manage appointments"}
+                </p>
+                <div className="flex items-center justify-center gap-8 mt-12">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold">24/7</div>
+                    <div className="text-sm text-teal-100">Support</div>
+                  </div>
+                  <div className="h-16 w-px bg-white/30"></div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold">500+</div>
+                    <div className="text-sm text-teal-100">Doctors</div>
+                  </div>
+                  <div className="h-16 w-px bg-white/30"></div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold">100%</div>
+                    <div className="text-sm text-teal-100">Secure</div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <form onSubmit={handleAuthSubmit} className="space-y-4">
+            {/* Right Side - Form */}
+            <div className="w-full lg:w-1/2 overflow-y-auto p-8 lg:p-12">
+              <div className="max-w-md mx-auto">
+                <div className="mb-8">
+                  <h2 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-2">
+                    {isSignUp ? "Create Account" : "Welcome Back"}
+                  </h2>
+                  <p className="text-gray-600">
+                    {isSignUp
+                      ? "Fill in your details to get started"
+                      : "Sign in to access your portal"}
+                  </p>
+                </div>
+
+            <form onSubmit={handleAuthSubmit} className="space-y-5">
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
               {isSignUp && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -387,6 +449,8 @@ const Hero = () => {
                   </label>
                   <input
                     type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     required
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition"
                     placeholder="Enter your full name"
@@ -423,29 +487,92 @@ const Hero = () => {
                 />
               </div>
 
+              {isSignUp && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Phone
+                      </label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition"
+                        placeholder="Phone number"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Date of Birth
+                      </label>
+                      <input
+                        type="date"
+                        value={dateOfBirth}
+                        onChange={(e) => setDateOfBirth(e.target.value)}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Gender
+                    </label>
+                    <select
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition"
+                    >
+                      <option value="">Not specified</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Address
+                    </label>
+                    <textarea
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      rows="2"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition resize-none"
+                      placeholder="Enter your address"
+                    />
+                  </div>
+                </>
+              )}
+
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold py-3 rounded-lg shadow-lg transition active:scale-95"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold py-3.5 rounded-lg shadow-lg transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSignUp ? "Create Account" : "Sign In"}
+                {loading ? "Please wait..." : (isSignUp ? "Create Account" : "Sign In")}
               </button>
-            </form>
 
-            <div className="text-center mt-6">
-              <p className="text-gray-600 text-sm">
-                {isSignUp
-                  ? "Already have an account?"
-                  : "Don't have an account?"}{" "}
-                <button
-                  onClick={() => setIsSignUp(!isSignUp)}
-                  className="text-teal-600 font-semibold hover:underline"
-                >
-                  {isSignUp ? "Login" : "Sign Up"}
-                </button>
-              </p>
-            </div>
+              <div className="text-center mt-6">
+                <p className="text-gray-600 text-sm">
+                  {isSignUp
+                    ? "Already have an account?"
+                    : "Don't have an account?"}{" "}
+                  <button
+                    onClick={() => setIsSignUp(!isSignUp)}
+                    className="text-teal-600 font-semibold hover:underline"
+                  >
+                    {isSignUp ? "Login" : "Sign Up"}
+                  </button>
+                </p>
+              </div>
+            </form>
           </div>
         </div>
+      </div>
+    </div>
       )}
     </section>
   );

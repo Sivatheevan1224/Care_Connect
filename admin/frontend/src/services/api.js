@@ -148,10 +148,9 @@ export const addDoctor = async (doctorData) => {
     const response = await fetch(`${API_BASE_URL}/add-doctor`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${getToken()}`,
       },
-      body: JSON.stringify(doctorData),
+      body: doctorData,
     });
 
     if (!response.ok) {
@@ -173,10 +172,9 @@ export const updateDoctor = async (doctorId, doctorData) => {
     const response = await fetch(`${API_BASE_URL}/doctors/${doctorId}`, {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${getToken()}`,
       },
-      body: JSON.stringify(doctorData),
+      body: doctorData,
     });
 
     if (!response.ok) {

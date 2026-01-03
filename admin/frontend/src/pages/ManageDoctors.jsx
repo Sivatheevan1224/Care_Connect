@@ -11,6 +11,8 @@ const ManageDoctors = () => {
 
   // Modal State
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null });
+  const [successModal, setSuccessModal] = useState({ isOpen: false, message: '' });
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' });
 
   const [formData, setFormData] = useState({
     name: '',
@@ -21,6 +23,9 @@ const ManageDoctors = () => {
     hospital: '',
     status: 'Active'
   })
+
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
 
   useEffect(() => {
     fetchDoctors()
@@ -48,18 +53,46 @@ const ManageDoctors = () => {
     })
   }
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setImageFile(file)
+      // Create preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const handleAddDoctor = async (e) => {
     e.preventDefault()
     try {
-      const response = await addDoctor(formData)
+      const doctorFormData = new FormData()
+      doctorFormData.append('name', formData.name)
+      doctorFormData.append('specialization', formData.specialization)
+      doctorFormData.append('phone', formData.phone)
+      doctorFormData.append('email', formData.email)
+      doctorFormData.append('experience', formData.experience)
+      doctorFormData.append('hospital', formData.hospital)
+      doctorFormData.append('status', formData.status)
+      if (imageFile) {
+        doctorFormData.append('image', imageFile)
+      }
+
+      const response = await addDoctor(doctorFormData)
       if (response.doctor) {
         await fetchDoctors() // Refresh the list
         setFormData({ name: '', specialization: '', phone: '', email: '', experience: '', hospital: '', status: 'Active' })
+        setImageFile(null)
+        setImagePreview(null)
         setShowAddForm(false)
+        setSuccessModal({ isOpen: true, message: 'Doctor added successfully!' })
       }
     } catch (err) {
       console.error('Error adding doctor:', err)
-      alert('Failed to add doctor: ' + err.message)
+      setErrorModal({ isOpen: true, message: err.message || 'Failed to add doctor. Please try again.' })
     }
   }
 
@@ -74,6 +107,8 @@ const ManageDoctors = () => {
       hospital: doctor.hospital || '',
       status: doctor.status || 'Active'
     })
+    setImagePreview(doctor.image || null)
+    setImageFile(null)
     setShowAddForm(true)
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -82,14 +117,29 @@ const ManageDoctors = () => {
   const handleUpdateDoctor = async (e) => {
     e.preventDefault()
     try {
-      await updateDoctor(editingDoctor._id, formData)
+      const doctorFormData = new FormData()
+      doctorFormData.append('name', formData.name)
+      doctorFormData.append('specialization', formData.specialization)
+      doctorFormData.append('phone', formData.phone)
+      doctorFormData.append('email', formData.email)
+      doctorFormData.append('experience', formData.experience)
+      doctorFormData.append('hospital', formData.hospital)
+      doctorFormData.append('status', formData.status)
+      if (imageFile) {
+        doctorFormData.append('image', imageFile)
+      }
+
+      await updateDoctor(editingDoctor._id, doctorFormData)
       await fetchDoctors() // Refresh the list
       setFormData({ name: '', specialization: '', phone: '', email: '', experience: '', hospital: '', status: 'Active' })
+      setImageFile(null)
+      setImagePreview(null)
       setShowAddForm(false)
       setEditingDoctor(null)
+      setSuccessModal({ isOpen: true, message: 'Doctor updated successfully!' })
     } catch (err) {
       console.error('Error updating doctor:', err)
-      alert('Failed to update doctor: ' + err.message)
+      setErrorModal({ isOpen: true, message: err.message || 'Failed to update doctor. Please try again.' })
     }
   }
 
@@ -103,9 +153,10 @@ const ManageDoctors = () => {
           await deleteDoctor(doctorId);
           await fetchDoctors(); // Refresh the list
           setConfirmModal(prev => ({ ...prev, isOpen: false }));
+          setSuccessModal({ isOpen: true, message: 'Doctor deleted successfully!' });
         } catch (err) {
           console.error('Error deleting doctor:', err);
-          alert('Failed to delete doctor: ' + err.message);
+          setErrorModal({ isOpen: true, message: err.message || 'Failed to delete doctor. Please try again.' });
           setConfirmModal(prev => ({ ...prev, isOpen: false }));
         }
       }
@@ -223,6 +274,73 @@ const ManageDoctors = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
               </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Profile Image</label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-purple-400 transition-colors">
+                  <div className="flex items-center gap-6">
+                    {imagePreview ? (
+                      <div className="relative group">
+                        <div className="w-32 h-32 rounded-lg overflow-hidden border-4 border-purple-200 shadow-md">
+                          <img
+                            src={imagePreview}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImageFile(null)
+                            setImagePreview(editingDoctor?.image || null)
+                          }}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                          </svg>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-32 h-32 rounded-lg bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center border-2 border-dashed border-purple-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-purple-400">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                          <circle cx="8.5" cy="8.5" r="1.5"/>
+                          <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <div className="relative">
+                        <input
+                          type="file"
+                          id="imageUpload"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                        <label
+                          htmlFor="imageUpload"
+                          className="cursor-pointer inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                          </svg>
+                          {imagePreview ? 'Change Image' : 'Upload Image'}
+                        </label>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        <span className="font-semibold">Supported formats:</span> JPG, PNG, GIF (Max 5MB)
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Recommended size: 400x400px for best results
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Status*</label>
                 <select
@@ -249,6 +367,8 @@ const ManageDoctors = () => {
                   setShowAddForm(false)
                   setEditingDoctor(null)
                   setFormData({ name: '', specialization: '', phone: '', email: '', experience: '', hospital: '', status: 'Active' })
+                  setImageFile(null)
+                  setImagePreview(null)
                 }}
                 className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition-all"
               >
@@ -341,6 +461,57 @@ const ManageDoctors = () => {
         }
       >
         <p className="text-gray-600">{confirmModal.message}</p>
+      </Modal>
+
+      {/* Success Modal */}
+      <Modal
+        isOpen={successModal.isOpen}
+        onClose={() => setSuccessModal({ isOpen: false, message: '' })}
+        title="Success"
+        actions={
+          <button
+            onClick={() => setSuccessModal({ isOpen: false, message: '' })}
+            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold"
+          >
+            OK
+          </button>
+        }
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <p className="text-gray-600 text-lg">{successModal.message}</p>
+        </div>
+      </Modal>
+
+      {/* Error Modal */}
+      <Modal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal({ isOpen: false, message: '' })}
+        title="Error"
+        actions={
+          <button
+            onClick={() => setErrorModal({ isOpen: false, message: '' })}
+            className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
+          >
+            OK
+          </button>
+        }
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="15" y1="9" x2="9" y2="15"/>
+              <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+          </div>
+          <p className="text-gray-600 text-lg">{errorModal.message}</p>
+        </div>
       </Modal>
     </div >
   )

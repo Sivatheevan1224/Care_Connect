@@ -133,12 +133,12 @@ const Doctors = ({ isFullPage = false }) => {
                       )}&background=0d9488&color=fff&size=200`
                     }
                     alt={doctor.name}
-                    className="w-full h-32 object-cover group-hover:scale-110 transition-transform duration-300"
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
 
-                <div className="p-4">
+                <div className="p-5">
                   <h3 className="text-lg font-bold text-gray-800 mb-1">
                     {doctor.name}
                   </h3>

@@ -85,13 +85,13 @@ const updateDoctor = async (req, res) => {
     const {
       name,
       email,
-      password,
       phone,
       specialization,
       hospital,
       experience,
       status,
     } = req.body;
+    const imageFile = req.file || req.files?.[0];
 
     const doctor = await Doctor.findById(id);
     if (!doctor) {
@@ -107,10 +107,10 @@ const updateDoctor = async (req, res) => {
     if (experience) doctor.experience = experience;
     if (status) doctor.status = status;
 
-    // Update password if provided
-    if (password && password.length >= 6) {
-      const salt = await bcrypt.genSalt(10);
-      doctor.password = await bcrypt.hash(password, salt);
+    // Update image if provided
+    if (imageFile) {
+      const imageUrl = await uploadToCloudinary(imageFile, "doctors");
+      doctor.image = imageUrl;
     }
 
     await doctor.save();
@@ -126,6 +126,7 @@ const updateDoctor = async (req, res) => {
         hospital: doctor.hospital,
         experience: doctor.experience,
         status: doctor.status,
+        image: doctor.image,
       },
     });
   } catch (error) {

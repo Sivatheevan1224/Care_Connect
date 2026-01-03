@@ -152,25 +152,25 @@ const PatientDashboard = () => {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">
+              <h1 className="text-3xl font-bold text-gray-800 text-center md:text-left">
                 Patient Dashboard
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-gray-600 mt-1 text-center md:text-left">
                 Welcome back, {profile?.name}!
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 w-full md:w-auto">
               <button
                 onClick={() => navigate("/")}
-                className="px-6 py-2 border-2 border-teal-500 text-teal-600 font-semibold rounded-lg hover:bg-teal-50 transition"
+                className="flex-1 md:flex-none px-6 py-2 border-2 border-teal-500 text-teal-600 font-semibold rounded-lg hover:bg-teal-50 transition text-center"
               >
                 Home
               </button>
               <button
                 onClick={handleLogout}
-                className="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition"
+                className="flex-1 md:flex-none px-6 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition text-center"
               >
                 Logout
               </button>

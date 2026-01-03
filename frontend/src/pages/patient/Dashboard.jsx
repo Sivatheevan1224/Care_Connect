@@ -151,8 +151,8 @@ const PatientDashboard = () => {
         </div>
       )}
 
-      <div className="mb-8 flex justify-between items-center">
-        <div>
+      <div className="mb-8 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
+        <div className="text-center md:text-left">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">My Profile</h1>
           <p className="text-gray-600">Manage your personal information</p>
         </div>
@@ -173,7 +173,7 @@ const PatientDashboard = () => {
             }
             setIsEditing(!isEditing);
           }}
-          className={`px-6 py-2 rounded-lg font-semibold transition ${
+          className={`px-6 py-2 rounded-lg font-semibold transition w-full md:w-auto ${
             isEditing
               ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
               : "bg-teal-600 text-white hover:bg-teal-700"

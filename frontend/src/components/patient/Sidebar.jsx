@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -83,30 +83,38 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-teal-900 to-blue-900 text-white h-screen fixed left-0 top-0 overflow-y-auto flex flex-col">
+    <aside className={`w-64 bg-gradient-to-b from-teal-900 to-blue-900 text-white h-screen fixed left-0 top-0 overflow-y-auto flex flex-col z-50 transition-transform duration-300 md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       <div className="p-6 flex-1 flex flex-col">
-        <Link to="/" className="flex items-center gap-3 mb-8 hover:opacity-80 transition-opacity">
-          <div className="bg-gradient-to-br from-teal-400 to-blue-500 p-2 rounded-xl">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="white"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-              <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08v0c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66" />
+        <div className="flex items-center justify-between mb-8">
+          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <div className="bg-gradient-to-br from-teal-400 to-blue-500 p-2 rounded-xl">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08v0c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold">CareConnect</h2>
+              <p className="text-xs text-teal-300">Patient Portal</p>
+            </div>
+          </Link>
+          <button onClick={onClose} className="md:hidden text-white/80 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold">CareConnect</h2>
-            <p className="text-xs text-teal-300">Patient Portal</p>
-          </div>
-        </Link>
+          </button>
+        </div>
 
         <nav className="space-y-2 flex-1">
           {menuItems.map((item) => (

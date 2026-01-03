@@ -1,8 +1,12 @@
 import React from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
+import Modal from './Modal'
+
 const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation()
+  
+  const [showLogoutModal, setShowLogoutModal] = React.useState(false)
 
   const menuItems = [
     {
@@ -56,7 +60,11 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   const navigate = useNavigate()
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true)
+  }
+
+  const confirmLogout = () => {
     localStorage.removeItem('adminToken')
     window.location.href = 'http://localhost:5173/'
   }
@@ -107,7 +115,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
           <div className="mt-auto pt-6 border-t border-white/20">
             <button
-              onClick={handleLogout}
+              onClick={handleLogoutClick}
               className="flex items-center gap-3 px-4 py-3 rounded-lg bg-red-600 hover:bg-red-700 transition-all duration-300 w-full"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -120,6 +128,30 @@ const Sidebar = ({ isOpen, onClose }) => {
           </div>
         </div>
       </aside>
+      
+      <Modal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        title="Confirm Logout"
+        actions={
+          <>
+            <button
+              onClick={() => setShowLogoutModal(false)}
+              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmLogout}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium"
+            >
+              Logout
+            </button>
+          </>
+        }
+      >
+        <p className="text-gray-600">Are you sure you want to log out of the admin portal?</p>
+      </Modal>
     </>
   )
 }

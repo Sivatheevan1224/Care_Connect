@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { patientLogin, patientRegister, adminLogin } from "../../services/api";
+import Modal from "../Modal";
 
 const Hero = () => {
   const { user, login, logout } = useAuth();
@@ -10,6 +11,7 @@ const Hero = () => {
   const closeMenuRef = useRef(null);
   const navLinksRef = useRef(null);
   const [showAuthPopup, setShowAuthPopup] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -107,8 +109,13 @@ const Hero = () => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = () => {
     logout();
+    setShowLogoutModal(false);
   };
 
   return (
@@ -190,7 +197,7 @@ const Hero = () => {
                 Back to Dashboard
               </Link>
               <button
-                onClick={handleLogout}
+                onClick={handleLogoutClick}
                 className="hover:bg-red-50 transition px-6 py-2 border-2 border-red-500 text-red-600 font-semibold rounded-lg"
               >
                 Logout
@@ -353,6 +360,31 @@ const Hero = () => {
           </div>
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <Modal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        title="Confirm Logout"
+        actions={
+          <>
+            <button
+              onClick={() => setShowLogoutModal(false)}
+              className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmLogout}
+              className="px-6 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
+            >
+              Logout
+            </button>
+          </>
+        }
+      >
+        <p className="text-gray-600">Are you sure you want to log out?</p>
+      </Modal>
 
       {/* Login/Register Popup */}
       {showAuthPopup && (

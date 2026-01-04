@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
 const PatientDashboard = () => {
   const { user, token, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -36,7 +38,7 @@ const PatientDashboard = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "http://localhost:5000/api/patient/profile",
+        `${API_BASE_URL}/patient/profile`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -86,7 +88,7 @@ const PatientDashboard = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/patient/profile",
+        `${API_BASE_URL}/patient/profile`,
         {
           method: "PUT",
           headers: {

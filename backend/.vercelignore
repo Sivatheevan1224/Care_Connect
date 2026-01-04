@@ -1,0 +1,8 @@
+node_modules
+.env
+.env.local
+.git
+.gitignore
+*.md
+Procfile
+startup.txt

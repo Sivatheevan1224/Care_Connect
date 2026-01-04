@@ -2,7 +2,7 @@ import express from "express";
 import "dotenv/config";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import connectDB from "./config/dbConfig.js";
+import mongoose from "mongoose";
 import cloudinaryConfig from "./config/cloudinary.js";
 import adminRouter from "./routes/admin.route.js";
 import doctorRoute from "./routes/doctor.route.js";
@@ -10,8 +10,37 @@ import patientRoute from "./routes/patient.route.js";
 
 //app config
 const app = express();
-const PORT = process.env.PORT;
-cloudinaryConfig();
+const PORT = process.env.PORT || 3000;
+
+// Initialize Cloudinary
+try {
+  cloudinaryConfig();
+} catch (error) {
+  console.log("Cloudinary config error:", error);
+}
+
+// Database connection for Vercel
+let isConnected = false;
+
+const connectDB = async () => {
+  if (isConnected && mongoose.connection.readyState === 1) {
+    return;
+  }
+  
+  try {
+    const opts = {
+      bufferCommands: false,
+      maxPoolSize: 10,
+    };
+    
+    await mongoose.connect(process.env.MONGO_URI, opts);
+    isConnected = true;
+    console.log("DB connected");
+  } catch (error) {
+    console.log(`DB connection failed: ${error.message}`);
+    throw error;
+  }
+};
 
 //middleware
 app.use(express.json());
@@ -39,6 +68,20 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
+// Middleware to ensure DB connection for each request
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error("Database connection error:", error);
+    res.status(503).json({
+      success: false,
+      message: "Database connection failed"
+    });
+  }
+});
+
 //api endpoints
 app.use("/api/admin", adminRouter);
 app.use("/api/doctor", doctorRoute);
@@ -63,17 +106,28 @@ app.get("/health", (req, res) => {
   res.status(200).json({
     status: "healthy",
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    database: mongoose.connection.readyState === 1 ? "connected" : "disconnected"
   });
 });
 
-// Connect to database
-connectDB();
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: err.message || "Internal Server Error"
+  });
+});
 
 // For local development
 if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`server is running on ${PORT}`);
+  connectDB().then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  }).catch((err) => {
+    console.error("Failed to start server:", err);
   });
 }
 

@@ -8,7 +8,7 @@ export const fetchDoctors = async (filters = {}) => {
       queryParams.append("specialization", filters.specialization);
     if (filters.hospital) queryParams.append("hospital", filters.hospital);
 
-    const url = `${API_BASE_URL}/admin/doctors${
+    const url = `${API_BASE_URL}/doctor/list${
       queryParams.toString() ? `?${queryParams.toString()}` : ""
     }`;
     const response = await fetch(url);

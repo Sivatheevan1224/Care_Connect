@@ -58,7 +58,7 @@ app.get("/", (req, res) => {
   });
 });
 
-// Health check endpoint for Azure
+// Health check endpoint
 app.get("/health", (req, res) => {
   res.status(200).json({
     status: "healthy",
@@ -67,7 +67,15 @@ app.get("/health", (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`server is running on ${PORT}`);
-  connectDB();
-});
+// Connect to database
+connectDB();
+
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`server is running on ${PORT}`);
+  });
+}
+
+// Export for Vercel
+export default app;

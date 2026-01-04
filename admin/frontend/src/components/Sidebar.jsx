@@ -66,7 +66,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   const confirmLogout = () => {
     localStorage.removeItem('adminToken')
-    window.location.href = 'http://localhost:5173/'
+    window.location.href = import.meta.env.VITE_PATIENT_APP_URL || 'http://localhost:5173/'
   }
 
   return (

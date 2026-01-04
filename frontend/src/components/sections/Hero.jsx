@@ -61,8 +61,9 @@ const Hero = () => {
           // If admin login succeeds, redirect to admin dashboard with token in URL
           setShowAuthPopup(false);
           setTimeout(() => {
-            // Redirect to admin frontend (running on different port) with token as query param
-            window.location.href = `http://localhost:5174?token=${adminResponse.token}`;
+            // Redirect to admin frontend with token as query param
+            const adminUrl = import.meta.env.VITE_ADMIN_APP_URL || 'http://localhost:5174';
+            window.location.href = `${adminUrl}?token=${adminResponse.token}`;
           }, 100);
           return;
         } catch (adminError) {

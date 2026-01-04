@@ -19,7 +19,7 @@ const Dashboard = () => {
     const token = localStorage.getItem("adminToken");
     if (!token) {
       // Redirect to main app login if no token
-      window.location.href = "http://localhost:5173";
+      window.location.href = import.meta.env.VITE_PATIENT_APP_URL || "http://localhost:5173";
       return;
     }
     fetchDashboardStats();

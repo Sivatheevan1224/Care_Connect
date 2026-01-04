@@ -15,8 +15,10 @@ CareConnect is a comprehensive digital healthcare platform designed to streamlin
 ### Repository Link
 [https://github.com/Sivatheevan1224/Care_Connect](https://github.com/Sivatheevan1224/Care_Connect)
 
-### Live Application Frontend
-[https://care-connect-blue.vercel.app/](https://care-connect-blue.vercel.app/)
+### Live Application
+- **Patient Frontend:** [https://care-connect-swart.vercel.app/](https://care-connect-swart.vercel.app/)
+- **Admin Frontend:** [https://careconnectadmin-liard.vercel.app/](https://careconnectadmin-liard.vercel.app/)
+- **Backend API:** [https://care-connectbackend.vercel.app/](https://care-connectbackend.vercel.app/)
 
 ## 🚀 Key Features
 
